@@ -2,8 +2,10 @@
   "name": "pororift-backend",
   "version": "1.0.0",
   "description": "Server-side for the PORORIFT application.",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
+    "serve": "nodemon src/app.js",
+    "babel": "babel src/app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -17,6 +19,13 @@
   },
   "homepage": "https://github.com/PoroRift/pororift-backend#readme",
   "devDependencies": {
+    "@babel/cli": "^7.0.0",
+    "@babel/core": "^7.0.0",
+    "babel-preset-env": "^1.7.0",
+    "nodemon": "^1.18.3"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.3",
     "express": "^4.16.3"
   }
 }

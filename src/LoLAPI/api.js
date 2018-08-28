@@ -1,10 +1,15 @@
 
+/*
+	This file contain ONLY LoL API and does not contain any logic for gathering data
 
+	Every function here is a call to LoL API only and should not do any complicated logi
+*/
 import fs from 'fs';
 import request from 'request'
 import polyfill from 'babel-polyfill'
 
 let url_getStat = "https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/"; // This need to be move out ot config file
+let url_matches = "https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/"
 
 let key = fs.readFileSync('./api_key');
 
@@ -37,6 +42,15 @@ export let getSummonerStat = async (_summonerName) => {
 	}
 }
 
+export let getMatches = async (_accountID) => {
+	try{
+		let matches = await doRequest(`${url_matches}${_accountID}/${key}`, 'GET');
+		return matches;
+	} catch(err){
+		return err;
+	}
+}
+
 
 function doRequest(_url, _method){
 	return new Promise( (resolve, reject) => {
@@ -51,8 +65,6 @@ function doRequest(_url, _method){
 			};
 
 			request(options, (err, res, body)=>{
-
-				console.log("Do Request");
 				if (res && (res.statusCode === 200 || res.statusCode === 201)) {
 					// console.log(' response ', res.body.rates.INR);
 					resolve(res.body);

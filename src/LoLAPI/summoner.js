@@ -14,8 +14,9 @@ export let getSummoner = async (_summoner) => {
 	let info = await getSummonerStat(_summoner);
 
 	let match_history = await getMatches(info.accountId);
+
 	let stat = {
-		info: stat,
+		info: info,
 		matches: match_history
 	};
 

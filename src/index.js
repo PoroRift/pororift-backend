@@ -2,7 +2,7 @@
 // const app = express();
 
 import express from 'express';
-import {getSummonerStat} from './LoLAPI/api.js'; // This going to be taken out
+import {getMatch} from './LoLAPI/api.js'; 
 import {getSummoner} from './LoLAPI/summoner.js'
 
 
@@ -26,9 +26,15 @@ app.get('/stat/:summoner', (req,res) => {
 
 
 app.get('/summoner/:summoner', (req, res) => {
-		getSummoner(req.params.summoner).then( (s) => {
-			res.json(s);
-		})
+	getSummoner(req.params.summoner).then( (s) => {
+		res.json(s);
+	})
+})
+
+app.get('/match/:matchid', (req, res) => {
+	getMatch(req.params.matchid).then( (m) => {
+		res.json(m);
+	})
 })
 
 app.listen(3000, () => console.log('Listening to port 3000!'));

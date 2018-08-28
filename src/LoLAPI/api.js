@@ -10,6 +10,8 @@ import polyfill from 'babel-polyfill'
 
 let url_getStat = "https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/"; // This need to be move out ot config file
 let url_matches = "https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/"
+let url_match = "https://na1.api.riotgames.com/lol/match/v3/timelines/by-match/"
+
 
 let key = fs.readFileSync('./api_key');
 
@@ -18,24 +20,9 @@ console.log(key.toString());
 
 
 export let getSummonerStat = async (_summonerName) => {
-	// let stat = null;
-	// await request(`${url_getStat}rubberice/${key}`, (err, response, body) => {
-	// 	console.log(response);
-	// 	stat = response
-	// });
-
-
-	// try{
-	// 	let stat =  await 
-	// 	console.log(stat.response);
-	// 	return stat;
-	// } catch(err) {
-	// 	return err;
-	// }
 
 	try{
 		let stat = await doRequest(`${url_getStat}${_summonerName}/${key}`, 'GET');
-		// console.log(stat);
 		return stat;
 	} catch(err) {
 		return err;
@@ -46,6 +33,16 @@ export let getMatches = async (_accountID) => {
 	try{
 		let matches = await doRequest(`${url_matches}${_accountID}/${key}`, 'GET');
 		return matches;
+	} catch(err){
+		return err;
+	}
+}
+
+
+export let getMatch = async (_matchID) => {
+	try{
+		let match = await doRequest(`${url_match}${_matchID}/${key}`, 'GET');
+		return match;
 	} catch(err){
 		return err;
 	}

@@ -30,7 +30,7 @@ app.get("/match/:matchid", (req, res) => {
 });
 
 app.get("/champs", (req, res) => {
-	getChamp().then((champs) => {
+	getChamp().then( (champs) => {
 		res.json(champs)
 	});
 });
@@ -41,7 +41,7 @@ app.listen(3000, () => console.log("Listening to port 3000!"));
 	
 /*********** TESTING ASYNC & ES8 ************/
 function bar() {
-    return new Promise((resolve, reject) => {
+    return new Promise( (resolve, reject) => {
         setTimeout(() => {
             resolve("hello");
         }, 3000);

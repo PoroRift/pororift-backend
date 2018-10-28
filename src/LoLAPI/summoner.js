@@ -7,7 +7,7 @@
     - Account information
 */
 
-import {getSummonerStat, getMatches} from './api.js'
+import {getSummonerStat, getMatches} from './api'
 // import polyfill from 'babel-polyfill'
 
 export let getSummoner = async (_summoner) => {

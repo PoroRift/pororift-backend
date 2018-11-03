@@ -2,12 +2,12 @@
 // const app = express();
 
 import express from "express";
-import { getMatch, getChamp } from "./LoLAPI/api.js"; 
+import path from 'path';
+import { getMatch } from "./LoLAPI/api.js"; 
 import { getSummoner } from "./LoLAPI/summoner.js"
 
+// console.log(process.cwd());
 
-
-console.log(process.cwd());
 const app = express();
 
 app.get("/", (req, res) => res.send("Hello World!"));
@@ -29,11 +29,44 @@ app.get("/match/:matchid", (req, res) => {
   });
 });
 
-app.get("/champs", (req, res) => {
-	getChamp().then( (champs) => {
-		res.json(champs)
+
+/* Get Champions */
+import { getChampList, getChampionIDs, getChampByKey, getChampByName, getChampIcon, getImages } from "./LoLAPI/champion.js"
+
+app.get("/champ_by_key/:key", (req, res) => {
+	getChampByKey(req.params.key).then( (champ) => {
+		res.json(champ);
 	});
 });
+
+app.get("/champ_by_name/:name", (req, res) => {
+	getChampByName(req.params.name).then( (champ) => {
+		res.json(champ);
+	});
+});
+
+app.get("/championList", (req, res) => {
+  getChampionIDs().then( (list) => {
+    res.json(list);
+  })
+});
+
+app.get("/champ_icon/:id", (req, res) => {
+  getChampIcon(req.params.id).then( (img) => {
+    res.writeHead(200, {'Content-Type': 'image/png'});
+    res.end(img, 'binary');
+  });
+});
+
+app.get("/images", (req, res) => {
+  getImages().then( (j) => {
+    res.json(j);
+  })
+});
+
+
+app.use('/champion', express.static(path.join(process.cwd(), 'data/img/champion')));
+
 
 app.listen(3000, () => console.log("Listening to port 3000!"));
 

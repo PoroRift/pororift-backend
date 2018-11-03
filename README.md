@@ -10,7 +10,24 @@ localhost:3000/summoner/:summonerIGN
 
 localhost:3000/match/:matchid
 
-localhost:3000/champs
+http://localhost:3000/champ_by_key/1
+
+http://localhost:3000/championList
+
+http://localhost:3000/champ_icon/1
+
+```
+
+# Static Images
+```
+# Get what images availables
+# top paths are: loading, splash, tiles
+
+http://localhost:3000/images
+
+# Example: get Image
+http://localhost:300/champion/splash/Aatrox_1.jpg
+
 ```
 
 

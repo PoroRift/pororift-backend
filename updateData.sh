@@ -27,6 +27,7 @@ curl https://ddragon.leagueoflegends.com/cdn/dragontail-$VERSION.tgz > $WORKDIR/
 
 tar -xvzf $WORKDIR/data.tgz -C $WORKDIR/
 
+mv $WORKDIR/$VERSION $WORKDIR/content
 
 # Remove unused files
 rm version

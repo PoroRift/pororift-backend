@@ -6,7 +6,6 @@
 */
 import fs from 'fs';
 import request from 'request'
-import polyfill from 'babel-polyfill'
 
 let URL_GETSTAT = 'https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/'; // This need to be move out ot config file
 let URL_MATCHES = 'https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/'
@@ -51,15 +50,16 @@ export let getMatch = async (_matchID) => {
   }
 };
 
-export let getChamp = async () => {
-  try{
-    let champs = await doRequest(`${URL_CHAMP}${key}`, 'GET');
-    return champs;
-  } catch (err) {
-    console.log(err.stack);
-    return err.stack;
-  }
-};
+// export let getChamp = async () => {
+//   try{
+//     let champs = await doRequest(`${URL_CHAMP}${key}`, 'GET');
+//     return champs;
+//   } catch (err) {
+//     console.log(err.stack);
+//     return err.stack;
+//   }
+// };
+
 
 
 function doRequest(_url, _method){

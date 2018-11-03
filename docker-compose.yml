@@ -8,5 +8,8 @@ services:
     volumes:
       - .:/usr/workspace
     container_name: dev
+    deploy:
+      restart_policy:
+        condition: on-failure
     stdin_open: true
     tty: true

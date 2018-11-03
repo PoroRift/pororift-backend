@@ -1,6 +1,7 @@
 // const express = require("express");
 // const app = express();
 
+import polyfill from 'babel-polyfill'
 import express from "express";
 import path from 'path';
 import { getMatch } from "./LoLAPI/api.js"; 

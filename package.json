@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "./node_modules/.bin/babel src --out-dir build",
-    "start": "./node_modules/.bin/babel src --out-dir build && node ./build/index.js"
+    "start": "./node_modules/.bin/babel src --out-dir build && node ./build/index.js",
+    "nodemon" : "nodemon src/index.js --exec babel-node --ignore data/"
   },
   "repository": {
     "type": "git",

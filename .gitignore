@@ -3,3 +3,4 @@ dist/
 # apit_key is a file that container generated key from Official Lol API Dev that allowed us to use their API and therefore should be kept private
 api_key 
 build/
+data/

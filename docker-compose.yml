@@ -1,0 +1,12 @@
+version: '3'
+
+services:
+  dev:
+    build: .
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/workspace
+    container_name: dev
+    stdin_open: true
+    tty: true

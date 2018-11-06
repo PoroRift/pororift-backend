@@ -41,7 +41,8 @@ https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-o
 
 BUILD
 ```
-docker build -t docker_node .
+## docker build -t docker_node .
+docker-compose up --build -d
 ```
 
 Create container with mounted current directory

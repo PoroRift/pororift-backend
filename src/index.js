@@ -4,8 +4,9 @@
 import polyfill from 'babel-polyfill'
 import express from "express";
 import path from 'path';
-import { getMatch } from "./LoLAPI/api.js"; 
+import { getMatch, getRotation } from "./LoLAPI/api.js"; 
 import { getSummoner } from "./LoLAPI/summoner.js"
+import fs from 'fs';
 
 // console.log(process.cwd());
 
@@ -31,7 +32,7 @@ app.get("/match/:matchid", (req, res) => {
 });
 
 
-/* Get Champions */
+/*** Get Champions ***/
 import { getChampList, getChampionIDs, getChampByKey, getChampByName, getChampIcon, getImages } from "./LoLAPI/champion.js"
 
 app.get("/champ_by_key/:key", (req, res) => {
@@ -65,8 +66,33 @@ app.get("/images", (req, res) => {
   })
 });
 
+app.get("/champ_rotation", (req, res) => {
+  getRotation().then( (rot) => {
+    return res.json(rot);
+  })
+});
+
+
+/** API KEY **/
+
+app.get("/update_key", (req, res) => {
+  if(req.query.key != undefined){
+    if(req.query.key.length != 42){
+      res.json({message: "Invalid Key"});
+    } else {
+      let path = `${process.cwd()}/api_key`;
+      fs.writeFileSync(path, req.query.key);
+      res.json({message: "Update Key Successfully"});
+    }
+    
+  } else {
+    res.json({message: "Empty Key"});
+  }
+});
+
 
 app.use('/champion', express.static(path.join(process.cwd(), 'data/img/champion')));
+
 
 
 app.listen(3000, () => console.log("Listening to port 3000!"));

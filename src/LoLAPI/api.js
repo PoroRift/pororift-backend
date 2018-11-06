@@ -9,17 +9,20 @@ import request from 'request'
 
 let URL_GETSTAT = 'https://na1.api.riotgames.com/lol/summoner/v3/summoners/by-name/'; // This need to be move out ot config file
 let URL_MATCHES = 'https://na1.api.riotgames.com/lol/match/v3/matchlists/by-account/'
-let URL_MATCHE = 'https://na1.api.riotgames.com/lol/match/v3/timelines/by-match/'
-let URL_CHAMP = 'https://na1.api.riotgames.com//lol/platform/v3/champion-rotations/'
+let URL_MATCHE = 'https://na1.api.riotgames.com/lol/match/v3/timelines/by-match/';
+let URL_CHAMP = 'https://na1.api.riotgames.com//lol/platform/v3/champion-rotations/';
+let URL_ROTATION = 'https://na1.api.riotgames.com/lol/platform/v3/champion-rotations';
 
 
-let key = fs.readFileSync('./api_key'); // Config file need to plan and implemented later
+// let key = fs.readFileSync('./api_key'); // Config file need to plan and implemented later
 
-key = '?api_key=' + key;
+// key = '?api_key=' + key;
+
+// let key = "";
 
 
 export let getSummonerStat = async (_summonerName) => {
-
+  let key = getKey();
   try{
     let stat = await doRequest(`${URL_GETSTAT}${_summonerName}/${key}`, 'GET');
     return stat;
@@ -30,6 +33,7 @@ export let getSummonerStat = async (_summonerName) => {
 };
 
 export let getMatches = async (_accountID) => {
+  let key = getKey();
   try{
     let matches = await doRequest(`${URL_MATCHES}${_accountID}/${key}`, 'GET');
     return matches;
@@ -41,6 +45,7 @@ export let getMatches = async (_accountID) => {
 
 
 export let getMatch = async (_matchID) => {
+  let key = getKey()
   try{
     let match = await doRequest(`${URL_MATCHE}${_matchID}/${key}`, 'GET');
     return match;
@@ -49,6 +54,16 @@ export let getMatch = async (_matchID) => {
     return err.stack;
   }
 };
+
+export let getRotation = async() => {
+  let key = getKey();
+  try{
+    return await doRequest(`${URL_ROTATION}/${key}`, 'GET');
+  } catch(err){
+    console.log(err.stack);
+    return err.stack
+  }
+}
 
 // export let getChamp = async () => {
 //   try{
@@ -60,6 +75,10 @@ export let getMatch = async (_matchID) => {
 //   }
 // };
 
+
+function getKey(){
+  return `?api_key=${fs.readFileSync('./api_key')}`;
+}
 
 
 function doRequest(_url, _method){

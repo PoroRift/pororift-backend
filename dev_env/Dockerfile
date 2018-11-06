@@ -4,6 +4,8 @@ FROM node
 
 RUN mkdir /usr/workspace
 
+WORKDIR /usr/workspace
+
 RUN apt-get update
 
 RUN apt-get install -y git

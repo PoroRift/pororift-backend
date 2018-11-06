@@ -16,6 +16,9 @@ http://localhost:3000/championList
 
 http://localhost:3000/champ_icon/1
 
+# Champion Rotation
+http://localhost:3000/champ_rotation
+
 ```
 
 # Static Images
@@ -26,7 +29,7 @@ http://localhost:3000/champ_icon/1
 http://localhost:3000/images
 
 # Example: get Image
-http://localhost:300/champion/splash/Aatrox_1.jpg
+http://localhost:3000/champion/splash/Aatrox_1.jpg
 
 ```
 

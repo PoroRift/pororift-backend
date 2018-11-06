@@ -55,7 +55,7 @@ export let getMatch = async (_matchID) => {
   }
 };
 
-export let getRotation = async() => {
+export let champRot = async() => {
   let key = getKey();
   try{
     return await doRequest(`${URL_ROTATION}/${key}`, 'GET');

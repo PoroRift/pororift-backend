@@ -4,7 +4,7 @@
 import polyfill from 'babel-polyfill'
 import express from "express";
 import path from 'path';
-import { getMatch, getRotation } from "./LoLAPI/api.js"; 
+import { getMatch } from "./LoLAPI/api.js"; 
 import { getSummoner } from "./LoLAPI/summoner.js"
 import fs from 'fs';
 
@@ -33,7 +33,7 @@ app.get("/match/:matchid", (req, res) => {
 
 
 /*** Get Champions ***/
-import { getChampList, getChampionIDs, getChampByKey, getChampByName, getChampIcon, getImages } from "./LoLAPI/champion.js"
+import { getChampList, getChampionIDs, getChampByKey, getChampByName, getChampIcon, getImages, getRotation } from "./LoLAPI/champion.js"
 
 app.get("/champ_by_key/:key", (req, res) => {
 	getChampByKey(req.params.key).then( (champ) => {

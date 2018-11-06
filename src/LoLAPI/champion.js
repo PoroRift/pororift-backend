@@ -1,5 +1,6 @@
 
 import fs from 'fs';
+import { champRot } from './api';
 
 // let DIR = "./data/content/data/en_US/"
 let DIR = `${process.cwd()}/data/content/data/en_US`
@@ -9,6 +10,9 @@ let champFileList = fs.readdirSync(`${DIR}/champion`);
 let championInfo = readJsonFile(`${DIR}/championFull.json`);
 
 let champImg = `${process.cwd()}/data/content/img/champion`
+
+let championMap = init();
+
 
 
 export let getChampByKey = async (key) => {
@@ -27,13 +31,27 @@ export let getChampByName = async(name) => {
 }
 
 export let getChampionIDs = async() => {
-  return championInfo.keys;
+  return championMap.list;
 }
 
 export let getChampIcon = async(id) => {
   let name = championInfo.keys[id];
   
   return fs.readFileSync(`${champImg}/${name}.png`)
+};
+
+export let getRotation = async() => {
+  let champ_rotation = await champRot();
+
+  let freeChamp = champ_rotation["freeChampionIds"].map( x => championMap.map[x]);
+  let freeChamp_new = champ_rotation["freeChampionIdsForNewPlayers"].map( x => championMap.map[x]);
+
+  // Deep clone of JSON object (Following immutable methodology)
+  let newChamp_rotation = JSON.parse(JSON.stringify(champ_rotation));
+  newChamp_rotation["freeChampionIds"] = freeChamp;
+  newChamp_rotation["freeChampionIdsForNewPlayers"] = freeChamp_new;
+
+  return newChamp_rotation;
 };
 
 
@@ -47,6 +65,21 @@ export let getImages = async() => {
   return list;
 }
 
+
+
+function init(){
+
+  let champList = [];
+  let champMap = {};
+  for (var key in championInfo.keys){
+    let id = key;
+    let value = championInfo.keys[id];
+    let champ_json = {id: key, name: value};
+    champList.push(champ_json);
+    champMap[key] = champ_json;
+  }
+  return {list: champList, map: champMap };
+}
 
 
 function readJsonFile(_path){

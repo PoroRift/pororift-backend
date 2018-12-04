@@ -1,26 +1,13 @@
-# For development use only!
+FROM golang:1.11
+WORKDIR /go-source
 
-FROM node
+RUN mkdir /go-source/bin
+ENV GOBIN=/go-source/bin
 
-RUN mkdir /usr/workspace
+COPY ./src ./src
+COPY ./go.mod .
+COPY ./go.sum .
 
-RUN mkdir /usr/app
+RUN go install ./src/server.go
 
-RUN apt-get update
-
-RUN apt-get install -y git
-
-WORKDIR /usr/app
-
-COPY . .
-
-RUN touch api_key
-
-RUN npm install
-
-RUN ./updateData.sh
-
-CMD ["npm", "run", "start"]
-
-# CMD ["nodemon", "--exec", "./node_modules/.bin/babel", "src/index.js", "--ignore",  "data/"]
-
+ENTRYPOINT ["./bin/server"]

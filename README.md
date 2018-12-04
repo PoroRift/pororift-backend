@@ -79,4 +79,6 @@ docker container rm <ID/name> # remove docker container
 
 docker rm $(docker ps -aq) # -f remove all docker containers
 docker rmi $(docker images -q) # Remove all images
+
+
 ```

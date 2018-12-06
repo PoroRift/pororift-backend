@@ -5,9 +5,8 @@ RUN mkdir /go-source/bin
 ENV GOBIN=/go-source/bin
 
 COPY ./src ./src
-COPY ./go.mod .
-COPY ./go.sum .
-
-RUN go install ./src/server.go
+WORKDIR /go-source/src
+RUN go test ./...
+RUN go install ./...
 
 ENTRYPOINT ["./bin/server"]

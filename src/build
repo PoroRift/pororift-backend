@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+
+
+export GOBIN=`pwd`/bin
+
+go install ./...
+
+

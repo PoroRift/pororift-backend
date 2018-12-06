@@ -4,3 +4,5 @@ dist/
 api_key 
 build/
 data/
+
+bin

@@ -2,6 +2,10 @@
 What the frontend/client calls for LoL data.
 
 
+```
+git submodule update --init --recursive
+```
+
 # API
 ```
 localhost:3000/url

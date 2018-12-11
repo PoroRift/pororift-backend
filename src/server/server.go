@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 
 	"github.com/PoroRift/pororift-backend/lol"
 
@@ -28,9 +27,15 @@ func main() {
 		AllowMethods: []string{echo.GET, echo.HEAD, echo.PUT, echo.PATCH, echo.POST, echo.DELETE},
 	}))
 
-	e.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "This is backend server")
-	})
+	e.GET("/", test)
+
+	e.GET("/summoner/:name", getSummonerStat)
+
+	e.GET("/champ_rotation", getChampRot)
+
+	e.GET("/champ", getChampList)
+
+	e.GET("/static/:category/:championid", getStatic)
 
 	e.Logger.Fatal(e.Start(":3001"))
 }

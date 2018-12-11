@@ -1,11 +1,16 @@
 package lol
 
 import (
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
+
+type request struct {
+	req map[string]string
+}
 
 const API_FILE string = "../api_key"
 
@@ -42,10 +47,11 @@ func readKey() (string, error) {
 	}
 }
 
-func GetSummonerStat(s string) (string, error) {
+// TODo: Error Checking
+func getSummonerStat(s string) (*http.Response, error) {
 
 	url := fmt.Sprintf("%s%s", URL_SUMMONER, s)
-	fmt.Println(url)
+	// fmt.Println(url)
 
 	// resp, err := http.Get(url)
 	// defer resp.Body.Close()
@@ -62,29 +68,62 @@ func GetSummonerStat(s string) (string, error) {
 
 	// return string(body), nil
 
-	client := &http.Client{}
+	// Prepare request
 	req, err := http.NewRequest("GET", url, nil)
+
+	// Set headers
 	req.Header.Add("X-Riot-Token", API_KEY)
 	req.Header.Add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8")
 	req.Header.Add("Accept-Language", "en-US,en;q=0.9")
 
-	fmt.Println(req)
+	// Do the request
+	client := &http.Client{}
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return "", err
+	// fmt.Println(reflect.TypeOf(resp))
+	// return resp, nil
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// fmt.Println(string(body))
+
+	// result := new(Stat)
+	// // var result map[string]interface{}
+	// json.NewDecoder(resp.Body).Decode(&result)
+	// // result := resp.Body
+	// log.Println(result)
+
+	// fmt.Println(reflect.TypeOf(result))
+	return resp, nil
+
+	// fmt.Println(string(body))
+	// return string(body), nil
+
+}
+
+func SummonerStat(name string) (*Stat, error) {
+	res, error := getSummonerStat(name)
+
+	if error != nil {
+		return nil, error
 	}
 
-	return string(body), nil
+	var stat = &Stat{}
+	json.NewDecoder(res.Body).Decode(&stat)
+	log.Println(stat)
 
+	return stat, nil
 }
 
 // func makeRequest(method, url string, b *Buffer) {
 
-// 	client := &http.
+// 	client := &http.Client{}
+
+// 	req, err := http.NewRequest("method", url, nil)
 // }

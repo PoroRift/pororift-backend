@@ -1,53 +1,71 @@
 package lol
 
-import (
-	"fmt"
-	"log"
-	"net/http"
-	"testing"
+import "testing"
 
-	"github.com/stretchr/testify/assert"
-)
+const checkMark = "\u2713"
+const ballotX = "\u2717"
 
 func TestReadKey(t *testing.T) {
-	key, err := readKey()
-	// fmt.Println(key)
-	if err != nil {
-		t.Errorf("Error, got: %s", err)
+	t.Log("Given Read Riot API Key")
+	{
+		key, err := readKey()
+		if err != nil {
+			t.Fatal("\tShould be able to read API Key.", ballotX, err)
+		}
+		t.Log("\tShould be able to read API Key: ", key, checkMark)
 	}
-
-	if key == "" {
-		t.Errorf("Error, got :%s", key)
-	}
-
-	fmt.Println()
 }
 
 func TestGetSummonerStat(t *testing.T) {
+	t.Log("Given Getting Summoner Stat from Riot")
+	{
+		res, err := getSummonerAPI("richerthanu", "na1")
+		if err != nil {
+			t.Error("\tShould received summoner response", ballotX, err)
+		}
 
-	res, err := getSummonerStat("richerthanu")
+		t.Log("\tShhould received summoner responses", checkMark)
 
-	if err != nil {
-		t.Errorf("Error, got: %s", err)
+		if res.StatusCode == 200 {
+			t.Log("\tShould received status code 200", checkMark)
+		} else {
+			t.Error("\tShould received status code 200", ballotX, res.StatusCode)
+		}
 	}
-	// fmt.Println(res)
-
-	// fmt.Println(res.StatusCode)
-	log.Println(res)
-	assert.NotNil(t, res, "The `response` should not be `nil`")
-	assert.Equal(t, http.StatusOK, res.StatusCode)
-	// assert.Equal(t, )
-	// fmt.Println(string(s))
-	// assert.NotNil(t, s, "The `response` should not be `nil`")
-	// assert.Equal(t, 4, s, "Expecting `4`")
-
 }
 
-func TestSummonerStat(t *testing.T) {
-	stat, err := SummonerStat("richerthanu")
-	if err != nil {
-		t.Errorf("Error, got: %s", err)
-	}
+func TestGetChampRotation(t *testing.T) {
+	t.Log("Given Getting Champion Rotation from Riot")
+	{
+		res, err := getChampRot("na1")
+		if err != nil {
+			t.Error("\tShould received champion rotation response", ballotX, err)
+		}
+		t.Log("\tShould received champion rotation response", checkMark)
 
-	fmt.Println(stat)
+		if res.StatusCode == 200 {
+			t.Log("\tShould received status code 200", checkMark)
+		} else {
+			t.Error("\tShould received status code 200", ballotX, res.StatusCode)
+		}
+	}
+}
+
+func TestGetMatchList(t *testing.T) {
+	t.Log("Given Getting Match List by champion account ID")
+	{
+		message := "\tShould received match list response"
+		res, err := getMatchList("na1", "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg")
+		if err != nil {
+			t.Error(message, ballotX, err)
+		}
+		t.Log(message, checkMark)
+
+		message_code := "\tShould received status code 200"
+		if res.StatusCode == 200 {
+			t.Log(message_code, checkMark)
+		} else {
+			t.Error(message_code, ballotX, res.StatusCode)
+		}
+	}
 }

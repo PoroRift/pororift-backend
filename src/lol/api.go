@@ -1,129 +1,122 @@
 package lol
 
 import (
-	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
-type request struct {
-	req map[string]string
-}
+type request func(string) (*http.Request, error)
 
-const API_FILE string = "../api_key"
+// This need to be read from config
+const URL_NA1 = "https://na1.api.riotgames.com"
+const URL_GET_SUMMONER = "/lol/summoner/v4/summoners/by-name/"
+const URL_GET_CHAMP_ROT = "/lol/platform/v3/champion-rotations"
+const URL_GET_MATCH_LIST = "/lol/match/v4/matchlists/by-account/"
 
-const URL_SUMMONER = "https://na1.api.riotgames.com/lol/summoner/v4/summoners/by-name/"
+var ERROR_UKNOWN_REGION = errors.New("Unknown Region")
 
-var API_KEY string
-
-func Test() string {
-	return "Test Package"
-}
+var api_key string
+var url_regions map[string]string
 
 func init() {
+	// Read Key
 	key, err := readKey()
 	if err != nil {
-		// fmt.Println(API_KEY, err)
-		log.Fatal(err)
+		log.Println("Cannot read API key", err)
 	}
 
-	API_KEY = string(key)
-	// fmt.Println(API_KEY)
+	api_key = key
+
+	url_regions = map[string]string{
+		"na1": URL_NA1,
+	}
+
 }
 
 func readKey() (string, error) {
-
 	b, err := ioutil.ReadFile(API_FILE)
 	if err != nil {
-		fmt.Print(err)
-		return fmt.Sprintf("Cannot read file: %s", "api_key"), err
+		// log.Println("Cannot read API Key", err)
+		return fmt.Sprintf("Cannot read file: %s", API_FILE), err
 	} else {
-		// fmt.Println(b) // print byte code (ASCII)
 		str := string(b)
 
 		return str, nil
 	}
 }
 
-// TODo: Error Checking
-func getSummonerStat(s string) (*http.Response, error) {
+// endpoint: /lol/summoner/v4/summoners/by-name/{summonerName}
+// https://developer.riotgames.com/api-methods/#summoner-v4
+func getSummonerAPI(summoner, region string) (*http.Response, error) {
 
-	url := fmt.Sprintf("%s%s", URL_SUMMONER, s)
-	// fmt.Println(url)
+	endpoint := fmt.Sprintf("%s%s", URL_GET_SUMMONER, summoner)
 
-	// resp, err := http.Get(url)
-	// defer resp.Body.Close()
-	// if err != nil {
-	// 	// handle error
-	// 	return "", err
-	// }
+	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
 
-	// body, err := ioutil.ReadAll(resp.Body)
-	// fmt.Println(body)
-	// if err != nil {
-	// 	return "", err
-	// }
-
-	// return string(body), nil
-
-	// Prepare request
-	req, err := http.NewRequest("GET", url, nil)
-
-	// Set headers
-	req.Header.Add("X-Riot-Token", API_KEY)
-	req.Header.Add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8")
-	req.Header.Add("Accept-Language", "en-US,en;q=0.9")
-
-	// Do the request
-	client := &http.Client{}
-	resp, err := client.Do(req)
-
-	if err != nil {
-		return nil, err
-	}
-
-	// fmt.Println(reflect.TypeOf(resp))
-	// return resp, nil
-	// body, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// fmt.Println(string(body))
-
-	// result := new(Stat)
-	// // var result map[string]interface{}
-	// json.NewDecoder(resp.Body).Decode(&result)
-	// // result := resp.Body
-	// log.Println(result)
-
-	// fmt.Println(reflect.TypeOf(result))
-	return resp, nil
-
-	// fmt.Println(string(body))
-	// return string(body), nil
+		return req, nil
+	})
 
 }
 
-func SummonerStat(name string) (*Stat, error) {
-	res, error := getSummonerStat(name)
+// endpoint: /lol/platform/v3/champion-rotations
+// https://developer.riotgames.com/api-methods/#champion-v3/GET_getChampionInfo
+func getChampRot(region string) (*http.Response, error) {
+	endpoint := URL_GET_CHAMP_ROT
+	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
 
-	if error != nil {
-		return nil, error
-	}
-
-	var stat = &Stat{}
-	json.NewDecoder(res.Body).Decode(&stat)
-	log.Println(stat)
-
-	return stat, nil
+		return req, nil
+	})
 }
 
-// func makeRequest(method, url string, b *Buffer) {
+// endpoint: /lol/match/v3/matchlists/by-account/{accountId}
+// https://developer.riotgames.com/api-methods/#match-v3/GET_getMatchlist
+// Options: champion, queue, season, endTime, beginTime, endIndex, beginIndex
+// Optional query is not implemented yet
+func getMatchList(region, accountId string) (*http.Response, error) {
+	endpoint := URL_GET_MATCH_LIST + accountId
+	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
+		req, err := http.NewRequest("GET", url, nil)
+		if err != nil {
+			return nil, err
+		}
 
-// 	client := &http.Client{}
+		return req, nil
+	})
+}
 
-// 	req, err := http.NewRequest("method", url, nil)
-// }
+func makeRequest(region, endpoint string, fn request) (*http.Response, error) {
+	if r, exist := url_regions[region]; exist {
+		// Region exists
+		// make request
+		url := fmt.Sprintf("%s%s", r, endpoint)
+		req, err := fn(url)
+		if err != nil {
+			return nil, err
+		}
+
+		// set riot-token
+		req.Header.Add("X-Riot-Token", api_key)
+		req.Header.Add("Accept-Charset", "application/x-www-form-urlencoded; charset=UTF-8")
+		req.Header.Add("Accept-Language", "en-US,en;q=0.9")
+
+		// Do the request
+		client := &http.Client{}
+		res, err := client.Do(req)
+
+		return res, err
+
+	} else {
+		return nil, ERROR_UKNOWN_REGION
+	}
+}

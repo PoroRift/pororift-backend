@@ -1,16 +1,12 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/PoroRift/pororift-backend/lol"
-
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 func init() {
-	fmt.Println(lol.Test())
+	// fmt.Println(lol.Test())
 }
 
 func main() {
@@ -35,7 +31,11 @@ func main() {
 
 	e.GET("/champ", getChampList)
 
-	e.GET("/static/:category/:championid", getStatic)
+	// TODO: Need to make list of all avai champions art
+	// TODO: remove relative path
+	e.Static("/static/champion", "../data/img/champion")
+
+	// e.GET("/static/avail_art" )
 
 	e.Logger.Fatal(e.Start(":3001"))
 }

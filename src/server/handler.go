@@ -1,10 +1,8 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 
-	"github.com/PoroRift/pororift-backend/lol"
 	"github.com/labstack/echo"
 )
 
@@ -19,9 +17,9 @@ func test(c echo.Context) error {
 // }
 
 // Load static contents
-func getStatic(c echo.Context) error {
-	return c.String(http.StatusOK, "Getting Static Content")
-}
+// func getStatic(c echo.Context) error {
+// 	return c.String(http.StatusOK, "Getting Static Content")
+// }
 
 // Get Champion Rotation
 func getChampRot(c echo.Context) error {
@@ -30,16 +28,16 @@ func getChampRot(c echo.Context) error {
 
 // Get Summoner information by name
 func getSummonerStat(c echo.Context) error {
-	name := c.Param("name")
-	stat, err := lol.SummonerStat(name)
-	fmt.Println(stat)
-	if err == nil {
+	// name := c.Param("name")
+	// stat, err := lol.SummonerStat(name)
+	// fmt.Println(stat)
+	// if err == nil {
 
-		return c.JSONPretty(http.StatusOK, stat, " ")
-	}
+	// 	return c.JSONPretty(http.StatusOK, stat, " ")
+	// }
 
-	return c.String(http.StatusServiceUnavailable, name)
-
+	// return c.String(http.StatusServiceUnavailable, name)
+	return c.String(http.StatusOK, "Getting SummonerStat")
 }
 
 func getChampList(c echo.Context) error {

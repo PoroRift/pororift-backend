@@ -1,12 +1,44 @@
 # pororift-backend
 What the frontend/client calls for LoL data.
 
+## API KEY
+- Generate and save riot api key into `api_key` file in root project directory
+
+## Static Content
+- Static content need to be download using `updateData.sh`
 
 ```
 git submodule update --init --recursive
 ```
 
 # API
+```
+# Static art
+http://localhost:3001/static/champion/tiles/Aatrox_0.jpg
+http://localhost:3001/static/champion/splash/Aatrox_0.jpg
+http://localhost:3001/static/champion/loading/Aatrox_0.jpg
+
+# TODO: List of available art
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Legacy API
 ```
 localhost:3000/url
 

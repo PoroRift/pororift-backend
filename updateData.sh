@@ -3,7 +3,7 @@
 # Get content version status
 curl https://ddragon.leagueoflegends.com/realms/na.json > response
 
-WORKDIR=${PWD}/data
+WORKDIR=${PWD}/static
 rm -rf $WORKDIR
 mkdir -p $WORKDIR
 
@@ -32,5 +32,5 @@ mv $WORKDIR/$VERSION $WORKDIR/content
 # Remove unused files
 rm version
 rm response
-rm data/data.tgz
+rm static/data.tgz
 

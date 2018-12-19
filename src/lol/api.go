@@ -50,7 +50,7 @@ func readKey() (string, error) {
 
 // endpoint: /lol/summoner/v4/summoners/by-name/{summonerName}
 // https://developer.riotgames.com/api-methods/#summoner-v4
-func getSummonerAPI(summoner, region string) (*http.Response, error) {
+func GetSummonerAPI(summoner, region string) (*http.Response, error) {
 
 	endpoint := fmt.Sprintf("%s%s", URL_GET_SUMMONER, summoner)
 
@@ -67,7 +67,7 @@ func getSummonerAPI(summoner, region string) (*http.Response, error) {
 
 // endpoint: /lol/platform/v3/champion-rotations
 // https://developer.riotgames.com/api-methods/#champion-v3/GET_getChampionInfo
-func getChampRot(region string) (*http.Response, error) {
+func GetChampRot(region string) (*http.Response, error) {
 	endpoint := URL_GET_CHAMP_ROT
 	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
 		req, err := http.NewRequest("GET", url, nil)
@@ -83,7 +83,7 @@ func getChampRot(region string) (*http.Response, error) {
 // https://developer.riotgames.com/api-methods/#match-v3/GET_getMatchlist
 // Options: champion, queue, season, endTime, beginTime, endIndex, beginIndex
 // Optional query is not implemented yet
-func getMatchList(region, accountId string) (*http.Response, error) {
+func GetMatchList(region, accountId string) (*http.Response, error) {
 	endpoint := URL_GET_MATCH_LIST + accountId
 	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
 		req, err := http.NewRequest("GET", url, nil)
@@ -95,11 +95,13 @@ func getMatchList(region, accountId string) (*http.Response, error) {
 	})
 }
 
+// Function take take a "callback" and prepare a request
 func makeRequest(region, endpoint string, fn request) (*http.Response, error) {
 	if r, exist := url_regions[region]; exist {
 		// Region exists
 		// make request
 		url := fmt.Sprintf("%s%s", r, endpoint)
+
 		req, err := fn(url)
 		if err != nil {
 			return nil, err
@@ -114,6 +116,9 @@ func makeRequest(region, endpoint string, fn request) (*http.Response, error) {
 		client := &http.Client{}
 		res, err := client.Do(req)
 
+		if res.StatusCode != 200 {
+			return res, errors.New("Incorrect Status Code")
+		}
 		return res, err
 
 	} else {

@@ -16,7 +16,7 @@ type (
 		Name       string
 		mutex      *sync.Mutex // Lock this Player while updating
 		Stat       *Stat
-		Matches    *Matches
+		Matches    *PlayerMatches
 		LastUpdate int64 // unix timestamp of the last update
 	}
 
@@ -29,14 +29,25 @@ type (
 		RevisionDate int    `json:"revisionDate"`
 		Lvl          int    `json:"summonerLevel"`
 	}
-)
 
-// var requestChan = make(chan )
-// "ToString" for type Stat
-func (s *Stat) String() string {
-	// Print the name of the field along with value
-	return fmt.Sprintf("%+v\n", *s)
-}
+	PlayerMatches struct {
+		Matches    []*PlayerMatch `json: matches`
+		StartIndex int            `json: startindex`
+		EndIndex   int            `json: endIndex`
+		TotalGames int            `json: totalGames`
+	}
+
+	PlayerMatch struct {
+		PlatformId string `json: platformId`
+		GameId     int    `json: gameId`
+		Champion   int    `json: champion`
+		Queue      int    `json: queue`
+		Season     int    `json: season`
+		Timestamp  int    `json: timestamp`
+		Role       string `json: role`
+		Lane       string `json: lane`
+	}
+)
 
 func (s *Summoner) IsOutdated() bool {
 	currentTime := time.Now().Unix()
@@ -71,7 +82,7 @@ func (s *Summoner) Update() error {
 	// Get Match List
 	res, err = lol.GetMatchList("na1", s.Stat.AccountId)
 
-	var matches = &Matches{}
+	var matches = &PlayerMatches{}
 	json.NewDecoder(res.Body).Decode(&matches)
 
 	s.Matches = matches
@@ -79,4 +90,19 @@ func (s *Summoner) Update() error {
 	// set updated time
 	s.LastUpdate = time.Now().Unix()
 	return nil
+}
+
+func (pm *PlayerMatches) String() string {
+	return fmt.Sprintf("%+v\n", *pm)
+}
+
+func (m *PlayerMatch) String() string {
+	return fmt.Sprintf("%+v\n", *m)
+}
+
+// var requestChan = make(chan )
+// "ToString" for type Stat
+func (s *Stat) String() string {
+	// Print the name of the field along with value
+	return fmt.Sprintf("%+v\n", *s)
 }

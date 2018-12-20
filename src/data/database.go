@@ -11,8 +11,9 @@ var players = map[string]string{}
 
 type (
 	DataBase struct {
-		Test           string
-		Summoners      map[string]*Summoner
+		Test      string
+		Summoners map[string]*Summoner
+		// Matches 	map[int]*
 		mutex_summoner *sync.Mutex
 		mutex_matches  *sync.Mutex
 	}

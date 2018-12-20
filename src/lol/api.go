@@ -15,6 +15,7 @@ const URL_NA1 = "https://na1.api.riotgames.com"
 const URL_GET_SUMMONER = "/lol/summoner/v4/summoners/by-name/"
 const URL_GET_CHAMP_ROT = "/lol/platform/v3/champion-rotations"
 const URL_GET_MATCH_LIST = "/lol/match/v4/matchlists/by-account/"
+const API_FILE = "../api_key"
 
 var ERROR_UKNOWN_REGION = errors.New("Unknown Region")
 

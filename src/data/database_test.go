@@ -18,14 +18,40 @@ func TestDBGetPlayer(t *testing.T) {
 	{
 		t.Log("\tWhen I adding new Summoner to DataBase")
 		{
-			Summoner, _ := db.GetPlayer("richerthanu")
+			Summoner, err := db.GetPlayer("richerthanu")
 
-			if Summoner.Stat.AccountId == "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg" {
-				t.Log("\t\tShould have an expected AccountID", Summoner.Stat.AccountId, checkMark)
+			if err != nil {
+				t.Error("\t\tShould have returned Summoner", err, ballotX)
 			} else {
-				t.Error("\t\tShould have an expected AccountID", Summoner.Stat.AccountId, ballotX)
+				t.Log("\t\tShould have returned Summoner", checkMark)
+				{
+					if Summoner.Stat.AccountId == "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg" {
+						t.Log("\t\tShould have an expected AccountID", Summoner.Stat.AccountId, checkMark)
+					} else {
+						t.Error("\t\tShould have an expected AccountID", Summoner.Stat.AccountId, ballotX)
+					}
+				}
 			}
+
 			// fmt.Println(summoner.mutex)
+		}
+	}
+}
+
+func TestGetSummonerObject(t *testing.T) {
+	db := &DataBase{
+		Summoners:      map[string]*Summoner{},
+		mutex_summoner: &sync.Mutex{},
+	}
+
+	t.Log("Given try to retrive non existing player from db")
+	{
+		summonerObject := db.getSummonerObject("Test")
+
+		if summonerObject == nil {
+			t.Error("\tShould have summoner object created", ballotX)
+		} else {
+			t.Log("\tShould have summoner object created", checkMark)
 		}
 	}
 }

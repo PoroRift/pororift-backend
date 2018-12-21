@@ -50,6 +50,8 @@ type (
 )
 
 func (s *Summoner) IsOutdated() bool {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
 	currentTime := time.Now().Unix()
 
 	if currentTime-s.LastUpdate > OUTDATED_TIME {
@@ -70,7 +72,6 @@ func (s *Summoner) Update() error {
 
 	// Get summoner Stat
 	res, err := lol.GetSummonerAPI(s.Name, "na1")
-
 	if err != nil {
 		return err
 	}

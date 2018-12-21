@@ -55,4 +55,25 @@ func TestSummonerUpdate(t *testing.T) {
 			}
 		}
 	}
+
+	t.Log("Given Summoner name not found") // Given Summoner doesn't exists/not found
+	{
+		summoner := &Summoner{
+			mutex: &sync.Mutex{},
+			Name:  "jfasdklfjasdkfkjdsalfkjadf",
+		}
+
+		err := summoner.Update()
+
+		if err == nil {
+			t.Error("\tShould return error", ballotX)
+		}
+		// fmt.Println(err)
+		t.Error("\tShould return error", checkMark, err)
+
+		// if err := summoner.Update(); err != nil {
+		// 	fmt.Println(err)
+		// }
+
+	}
 }

@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type request func(string) (*http.Request, error)
@@ -117,10 +118,19 @@ func makeRequest(region, endpoint string, fn request) (*http.Response, error) {
 		client := &http.Client{}
 		res, err := client.Do(req)
 
-		if res.StatusCode != 200 {
-			return res, errors.New("Incorrect Status Code")
+		if err != nil {
+			return nil, err
 		}
-		return res, err
+
+		switch res.StatusCode {
+		case 404: // Summoner not found
+			body, _ := ioutil.ReadAll(res.Body)
+			return nil, errors.New(string(body))
+		case 200:
+			return res, err
+		default:
+			return res, errors.New("Incorrect Status Code " + strconv.Itoa(res.StatusCode))
+		}
 
 	} else {
 		return nil, ERROR_UKNOWN_REGION

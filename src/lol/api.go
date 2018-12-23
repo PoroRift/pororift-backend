@@ -129,6 +129,7 @@ func makeRequest(region, endpoint string, fn request) (*http.Response, error) {
 		case 200:
 			return res, err
 		default:
+			// TODO: Move error into other config file
 			return res, errors.New("Incorrect Status Code " + strconv.Itoa(res.StatusCode))
 		}
 

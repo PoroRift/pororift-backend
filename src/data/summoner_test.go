@@ -5,6 +5,8 @@ import (
 	"testing"
 )
 
+// TODO: Have Generic Message declared as string variables
+
 func TestOutDated(t *testing.T) {
 	t.Log("Given that a summoner just created")
 	{

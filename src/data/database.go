@@ -11,13 +11,20 @@ var players = map[string]string{}
 
 type (
 	DataBase struct {
-		Test      string
-		Summoners map[string]*Summoner
-		// Matches 	map[int]*
+		Test           string
+		Summoners      map[string]*Summoner
+		Matches        map[int]*Match
 		mutex_summoner *sync.Mutex
 		mutex_matches  *sync.Mutex
 	}
 )
+
+func (d *DataBase) GetMatch(matchId int) (*Match, err) {
+	match := d.getMatchObject(matchId)
+
+	matchInfo, err := match.GetInfo()
+
+}
 
 func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 
@@ -31,6 +38,25 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 
 	return summoner, nil
 
+}
+
+func (d *DataBase) getMatchObject(id int) *Match {
+	d.mutex_matches.Lock()
+	defer d.mutex_matches.Unlock()
+
+	if match, exist := d.Matches[id]; exist {
+		// If Match does not exists, create them
+		newMatch = &Match{
+			mutex:  &sync.Mutex{},
+			GameId: id,
+		}
+
+		d.Matches[id] = newMatch
+
+		return newMatch
+	} else {
+		return match
+	}
 }
 
 // Lock summoner list in the database

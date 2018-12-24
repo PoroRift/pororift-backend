@@ -6,12 +6,12 @@ import "fmt"
 var db = &DataBase{}
 
 func init() {
-	db.Test = "Test String"
+	// db.Test = "Test String"
 }
 
 // Look up player by name
 // Return player information
 func GetPlayer(name string) {
 	fmt.Println(name)
-	fmt.Println(db.Test)
+	// fmt.Println(db.Test)
 }

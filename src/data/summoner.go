@@ -107,3 +107,10 @@ func (s *Stat) String() string {
 	// Print the name of the field along with value
 	return fmt.Sprintf("%+v\n", *s)
 }
+
+func createSummoner(name string) *Summoner {
+	return &Summoner{
+		Name:  name,
+		mutex: &sync.Mutex{},
+	}
+}

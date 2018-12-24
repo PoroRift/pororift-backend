@@ -9,7 +9,7 @@ type (
 	}
 )
 
-func (m *Match) GetInfo() (string, error) {
+// func (m *Match) GetInfo() (string, error) {
 
-	return "", error
-}
+// 	return "", error
+// }

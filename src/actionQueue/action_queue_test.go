@@ -6,6 +6,16 @@ import (
 )
 
 type TestObject struct{}
+type TestRequest struct {
+	Object Object
+	err    error
+	action func() (Object, error)
+}
+
+func (t *TestRequest) Run() {
+	summoner, err := t.action()
+	fmt.Println(summoner, err)
+}
 
 func TestActionQueue(t *testing.T) {
 	que := &ActionQueue{}
@@ -14,7 +24,12 @@ func TestActionQueue(t *testing.T) {
 		fmt.Println("Test")
 		return &TestObject{}, nil
 	}
-	que.Add(action)
+
+	newRequest := &TestRequest{
+		action: action,
+	}
+
+	que.Add(newRequest)
 	que.wg.Wait()
 	que.Stop()
 }

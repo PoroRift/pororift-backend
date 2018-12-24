@@ -5,7 +5,7 @@ import "sync"
 
 type (
 	ActionQueue struct {
-		que       chan Action
+		que       chan Request
 		QueActive bool
 		wg        sync.WaitGroup
 	}
@@ -13,7 +13,10 @@ type (
 	// Action interface {
 	// 	Action() (Object, error)
 	// }
-	Action func() (Object, error)
+
+	Request interface {
+		Run()
+	}
 
 	Object interface{}
 	// ActionGetPlayer struct{} // This can be move to other file
@@ -23,10 +26,10 @@ type (
 
 // type Action func() (*Summoner, error)
 
-func (q *ActionQueue) Add(a Action) {
+func (q *ActionQueue) Add(request Request) {
 	if q.QueActive {
 		q.wg.Add(1)
-		q.que <- a
+		q.que <- request
 	} else {
 		fmt.Println("Queue is closed")
 	}
@@ -36,19 +39,19 @@ func (q *ActionQueue) Add(a Action) {
 func (q *ActionQueue) Start() {
 	q.QueActive = true
 	// q.wg = sync.WaitGroup
-	q.que = make(chan Action, 10)
+	q.que = make(chan Request, 10)
 	go consume(q.que, &q.wg)
 
 }
 
-func consume(que <-chan Action, wg *sync.WaitGroup) {
+func consume(que <-chan Request, wg *sync.WaitGroup) {
 	// defer close(que) // Close when channel is empty
 	for {
-		action, ok := <-que
+		request, ok := <-que
 		// fmt.Println(wg)
 		if ok {
-			action()  // Perform Action
-			wg.Done() // Decrease Semaphore
+			request.Run() // Perform Action
+			wg.Done()     // Decrease Semaphore
 		} else {
 			return
 		}

@@ -1,7 +1,7 @@
 package data
 
 import (
-	"fmt"
+	"reflect"
 	"testing"
 )
 
@@ -14,12 +14,27 @@ func TestDBGetPlayer(t *testing.T) {
 	t.Log("Given searching for summoner that's not in the database")
 	{
 		summoner, err := db.GetPlayer("richerthanu")
+		// t.Log(*summoner)
 		if err != nil {
 			t.Error("\tShoud search for summoner ", "richerthanu", ballotX, err)
 		}
 		t.Log("\tShould search for summoner ", "richerthanu", checkMark)
 
-		fmt.Println(summoner)
+		// fmt.Println(summoner)
+		t.Log("\tWhen Searching for summoner that exist in the database")
+		{
+			anotherSummoner, _ := db.GetPlayer("richerthanu")
+			// var s Summoner = *anotherSummoner
+			// t.Log(&s)
+			// t.Log(*anotherSummoner)
+			check := reflect.DeepEqual(anotherSummoner, summoner) // Check if 2 struct are the same
+			// t.Log(reflect.DeepEqual(anotherSummoner, summoner))
+			if check {
+				t.Log("\t\tShould have the same Object", checkMark)
+			} else {
+				t.Log("\t\tShould have the same Object", ballotX)
+			}
+		}
 	}
 
 }

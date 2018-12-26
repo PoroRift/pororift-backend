@@ -3,6 +3,9 @@ package actionQueue
 import "fmt"
 import "sync"
 
+// TODO: need to test que start()/stop()
+// TODO: Testing multiple request
+
 type (
 	ActionQueue struct {
 		que       chan Request

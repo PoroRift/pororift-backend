@@ -4,7 +4,6 @@
 package data
 
 import (
-	"fmt"
 	"reflect"
 	"sync"
 
@@ -23,23 +22,28 @@ type (
 	}
 
 	Request struct {
-		Respond *actionQueue.Object
+		Respond actionQueue.Object
+		mutex   *sync.Mutex // For client to know when the request is done processing
 		err     error
 		action  func() (actionQueue.Object, error)
 	}
 )
 
 // Method Set for actionQueue.Request interface
+// This function will be run by a different thread (Goroutine, consume)
 func (r *Request) Run() {
+	r.mutex.Lock()
 	Object, err := r.action()
+	// fmt.Println("object.action: ", Object)
 	// fmt.Println(reflect.TypeOf(Object).String())
 	// fmt.Println(&Object)
-	r.Respond = &Object
+	r.Respond = Object
 	// fmt.Println(reflect.TypeOf(r.Respond).String())
 	// fmt.Println(r.Respond)
 	r.err = err
 	// fmt.Println(*r.Respond)
 	// fmt.Println(reflect.TypeOf(*r.Respond).String())
+	r.mutex.Unlock()
 
 }
 
@@ -107,14 +111,17 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 
 			err := newSummoner.Update()
 			d.Summoners[name] = newSummoner
+			// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
 			return newSummoner, err
 		}
 
 		request := &Request{
 			action: action,
+			mutex:  &sync.Mutex{},
 		}
 		d.ActionQueue.Add(request)
 		d.ActionQueue.Wait() // wrong, need to change to request lock
+
 		// fmt.Println(reflect.TypeOf(request.Respond).String())
 		// t := request.Respond.(Summoner)
 		// t := &request.Respond
@@ -125,15 +132,27 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 		// fmt.Println(type2, panic)
 		// return Summoner(request.Respond), request.err
 		// return request.Respond, request.err
-		fmt.Println(reflect.TypeOf((*request.Respond)).String())
-		fmt.Println(*request.Respond)
+		// fmt.Println(reflect.TypeOf((*request.Respond)).String())
+		// fmt.Println(*request.Respond)
 		// var s Summoner = *request.Respond
 		// var s Summoner = *request.Respond.(Summoner)
 		// var s *Summoner = *request.Respond
-		// fmt.Println(reflect.TypeOf(request.Respond).String())
+		// fmt.Println("reflect GetPlayer: pointer " + reflect.TypeOf(request.Respond).String())
+		// fmt.Println(request.Respond)
+		// fmt.Println("reflect GetPlayer: address " + reflect.TypeOf(&request.Respond).String())
 		// fmt.Println(reflect.TypeOf(&request.Respond).String())
 		// var s *Summoner = &request.Respond
-		return &Summoner{}, nil
+		// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(Summoner)
+		// fmt.Println(s)
+
+		// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(*Summoner)
+		s := reflect.ValueOf(request.Respond).Interface().(*Summoner)
+
+		// s.Name = "Not Rich"
+		// fmt.Println("Address: ", s)
+		// fmt.Println("D summoner: ", *(d.Summoners[name]))
+		// fmt.Println(d.Summoners[name])
+		return s, request.err
 	}
 
 }
@@ -157,6 +176,7 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 // 	}
 // }
 
+// TODO: No longer needed
 // Lock summoner list in the database
 // Return summoner if exists otherwise create an empty summoner,
 // adds to the summer list then return the new empty summoner

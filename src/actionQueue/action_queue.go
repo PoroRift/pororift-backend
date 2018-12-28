@@ -69,6 +69,7 @@ func consume(que <-chan Request, wg *sync.WaitGroup) {
 
 }
 
+// Only Work when the queue already started
 func (q *ActionQueue) Wait() {
 	q.wg.Wait()
 }

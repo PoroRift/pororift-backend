@@ -1,7 +1,6 @@
 package lol
 
 import (
-	"errors"
 	"testing"
 )
 
@@ -40,7 +39,7 @@ func TestGetSummonerStat(t *testing.T) {
 	{
 		_, err := GetSummonerAPI("richerthanu", "na")
 		if err != nil {
-			if err == errors.New("Unknown Region") {
+			if err.Error() == "Unknown Region" {
 				t.Log("\tShould recevied UNKNOWN REGION error", checkMark)
 			} else {
 				t.Error("\tShould received UNKNOWN REGION error", ballotX, err)

@@ -2,6 +2,7 @@ package data
 
 import (
 	"reflect"
+	"sync"
 	"testing"
 )
 
@@ -37,6 +38,36 @@ func TestDBGetPlayer(t *testing.T) {
 		}
 	}
 
+}
+
+func TestGetTwoPlayer(t *testing.T) {
+	db := &DataBase{}
+	db.Init()
+	t.Log("Given requesting 2 player at the same time")
+	{
+		var wg sync.WaitGroup
+		wg.Add(2)
+		var s1, s2 *Summoner
+		go func() {
+			sum, _ := db.GetPlayer("richerthanu")
+			s1 = sum
+			wg.Done()
+		}()
+
+		go func() {
+			sum, _ := db.GetPlayer("rubberice")
+			s2 = sum
+			wg.Done()
+		}()
+
+		wg.Wait()
+
+		if s1 != nil && s2 != nil {
+			t.Log("\tShould recevied 2 summoners objects", checkMark)
+		} else {
+			t.Error("\tShould recevied 2 summoners objects", ballotX)
+		}
+	}
 }
 
 // func TestDBGetPlayer(t *testing.T) {

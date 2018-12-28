@@ -4,7 +4,7 @@
 package data
 
 import (
-	"reflect"
+	"errors"
 	"sync"
 
 	"github.com/PoroRift/pororift-backend/actionQueue"
@@ -23,7 +23,7 @@ type (
 
 	Request struct {
 		Respond actionQueue.Object
-		mutex   *sync.Mutex // For client to know when the request is done processing
+		wg      sync.WaitGroup // For client to know when the request is done processing
 		err     error
 		action  func() (actionQueue.Object, error)
 	}
@@ -32,19 +32,13 @@ type (
 // Method Set for actionQueue.Request interface
 // This function will be run by a different thread (Goroutine, consume)
 func (r *Request) Run() {
-	r.mutex.Lock()
-	Object, err := r.action()
-	// fmt.Println("object.action: ", Object)
-	// fmt.Println(reflect.TypeOf(Object).String())
-	// fmt.Println(&Object)
-	r.Respond = Object
-	// fmt.Println(reflect.TypeOf(r.Respond).String())
-	// fmt.Println(r.Respond)
-	r.err = err
-	// fmt.Println(*r.Respond)
-	// fmt.Println(reflect.TypeOf(*r.Respond).String())
-	r.mutex.Unlock()
+	// r.wg.Add(1)
+	defer r.wg.Done()
 
+	Object, err := r.action()
+
+	r.Respond = Object
+	r.err = err
 }
 
 func (db *DataBase) Init() {
@@ -112,47 +106,31 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 			err := newSummoner.Update()
 			d.Summoners[name] = newSummoner
 			// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
+
 			return newSummoner, err
 		}
 
 		request := &Request{
 			action: action,
-			mutex:  &sync.Mutex{},
 		}
+
+		request.wg.Add(1)
 		d.ActionQueue.Add(request)
-		d.ActionQueue.Wait() // wrong, need to change to request lock
+		request.wg.Wait()
 
-		// fmt.Println(reflect.TypeOf(request.Respond).String())
-		// t := request.Respond.(Summoner)
-		// t := &request.Respond
-		// fmt.Println(t.Name)
-		// str, ok := request.Respond.(Summoner)
-		// fmt.Println(str, ok)
-		// type2, panic := request.Respond() //Summoner.(request.Respond)
-		// fmt.Println(type2, panic)
-		// return Summoner(request.Respond), request.err
-		// return request.Respond, request.err
-		// fmt.Println(reflect.TypeOf((*request.Respond)).String())
-		// fmt.Println(*request.Respond)
-		// var s Summoner = *request.Respond
-		// var s Summoner = *request.Respond.(Summoner)
-		// var s *Summoner = *request.Respond
-		// fmt.Println("reflect GetPlayer: pointer " + reflect.TypeOf(request.Respond).String())
-		// fmt.Println(request.Respond)
-		// fmt.Println("reflect GetPlayer: address " + reflect.TypeOf(&request.Respond).String())
-		// fmt.Println(reflect.TypeOf(&request.Respond).String())
-		// var s *Summoner = &request.Respond
-		// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(Summoner)
-		// fmt.Println(s)
+		sum, ok := request.Respond.(*Summoner)
+		// fmt.Println(sum, ok)
+		if !ok {
+			return nil, errors.New("Interface conversion error")
+		}
+		return sum, nil
 
+		// fmt.Println(sum, ok)
 		// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(*Summoner)
-		s := reflect.ValueOf(request.Respond).Interface().(*Summoner)
+		// s := reflect.ValueOf(request.Respond).Interface().(*Summoner)
 
 		// s.Name = "Not Rich"
-		// fmt.Println("Address: ", s)
-		// fmt.Println("D summoner: ", *(d.Summoners[name]))
-		// fmt.Println(d.Summoners[name])
-		return s, request.err
+		// return s, request.err
 	}
 
 }

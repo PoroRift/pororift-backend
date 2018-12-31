@@ -3,7 +3,7 @@ package data
 
 import "fmt"
 
-var db = &DataBase{}
+var db = &Instance{}
 
 func init() {
 	// db.Test = "Test String"

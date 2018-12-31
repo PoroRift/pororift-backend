@@ -10,7 +10,7 @@ const checkMark = "\u2713"
 const ballotX = "\u2717"
 
 func TestDBGetPlayer(t *testing.T) {
-	db := &DataBase{}
+	db := &Instance{}
 	db.Init()
 	t.Log("Given searching for summoner that's not in the database")
 	{
@@ -41,7 +41,7 @@ func TestDBGetPlayer(t *testing.T) {
 }
 
 func TestGetTwoPlayer(t *testing.T) {
-	db := &DataBase{}
+	db := &Instance{}
 	db.Init()
 	t.Log("Given requesting 2 player at the same time")
 	{
@@ -62,6 +62,7 @@ func TestGetTwoPlayer(t *testing.T) {
 
 		wg.Wait()
 
+		// t.Log(*s1, *s2)
 		if s1 != nil && s2 != nil {
 			t.Log("\tShould recevied 2 summoners objects", checkMark)
 		} else {

@@ -13,35 +13,47 @@ import (
 var players = map[string]string{}
 
 type (
-	DataBase struct {
-		ActionQueue    *actionQueue.ActionQueue
-		Summoners      map[string]*Summoner
-		Matches        map[int]*Match
-		mutex_summoner *sync.Mutex
-		mutex_matches  *sync.Mutex
+	// Instance represent an instance of DataBase that contain compiled data
+	Instance struct {
+		ActionQueue   *actionQueue.ActionQueue
+		Summoners     map[string]*Summoner
+		Matches       map[int]*Match
+		mutexSummoner *sync.Mutex
+		mutexMatches  *sync.Mutex
 	}
 
+	// Request represent a request(action) to create/update data.
+	// Request will be send to the action que of that instance.
 	Request struct {
+		// Respond is an interface object that can hold whatever is defined
+		// as the respond from the from the request
 		Respond actionQueue.Object
-		wg      sync.WaitGroup // For client to know when the request is done processing
-		err     error
-		action  func() (actionQueue.Object, error)
+		// A WaitGroup to check if the request is processed and finished
+		wg  sync.WaitGroup
+		err error
+		// action defined what action the request will perform
+		action func() (actionQueue.Object, error)
 	}
 )
 
+// Run defined how the request will be executed. (Not action
+// the request wil be performing)
 // Method Set for actionQueue.Request interface
-// This function will be run by a different thread (Goroutine, consume)
+// This function will be run by a different thread (Goroutine, ActionQueue.consume())
 func (r *Request) Run() {
-	// r.wg.Add(1)
-	defer r.wg.Done()
+	defer r.wg.Done() // finished processing
 
 	Object, err := r.action()
 
-	r.Respond = Object
-	r.err = err
+	r.Respond = Object // Stored the result of the action
+	r.err = err        // Stored the error of the action
 }
 
-func (db *DataBase) Init() {
+// Init function initialize the Instance and all it components.
+// Call it repeatedly will result in a new component
+// TODO: Check if the instance has been called, prevent from reset
+// TODO: Create Reset Function
+func (db *Instance) Init() {
 	db.ActionQueue = &actionQueue.ActionQueue{}
 	db.ActionQueue.Start()
 
@@ -49,22 +61,12 @@ func (db *DataBase) Init() {
 	db.Matches = map[int]*Match{}
 }
 
-// type Update func()()
-
-// func (a *ActionGetPlayer) Action(fn Update) {
-
-// }
-
-// func (a *ActionGetPlayer) Action
-
-// func (d *DataBase) GetMatch(matchId int) (*Match, err) {
-// 	match := d.getMatchObject(matchId)
-
-// 	matchInfo, err := match.GetInfo()
-
-// }
-
-func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
+// GetPlayer search the information of that player.
+// Store every name that is search including the unknown or non-existing player
+// to prevent spam.
+// If the player doesn't exist or need to be update, create a request struct
+// and put the request to update/create summoner into action queue
+func (db *Instance) GetPlayer(name string) (*Summoner, error) {
 
 	// summoner := d.getSummonerObject(name)
 	// if summoner.IsOutdated() {
@@ -76,50 +78,54 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 
 	// return summoner, nil
 
-	if summoner, exist := d.Summoners[name]; exist {
-		return summoner, nil
-	} else {
-		// Either response with nil first or wait
+	if summoner, exist := db.Summoners[name]; exist {
+		// TODO: Check if summoner is outdated and need to be updated
+		if summoner.IsOutdated() {
+			// summoenr information need to be updated
 
-		// Put in action Queue
-		// action := func() (*Summoner, error) {
-
-		// 	// if other action in the queue already created summoner
-		// 	if summoner, exist := d.Summoners[name]; exist {
-		// 		return summoner, nil
-		// 	}
-		// 	d.Summoners[name] = &Summoner{
-		// 		Name:  name,
-		// 		mutex: &sync.Mutex{},
-		// 	}
-
-		// 	return d.Summoners[name], nil
-		// }
-
-		action := func() (actionQueue.Object, error) {
-			if summoner, exist := d.Summoners[name]; exist { // If previous Action already update summoner
-				return summoner, nil
+			request := &Request{
+				action: func() (actionQueue.Object, error) {
+					err := summoner.Update()
+					return nil, err
+				},
 			}
+			request.wg.Add(1)           // Indicate the request is processing
+			db.ActionQueue.Add(request) // Put the request into queue
 
-			newSummoner := createSummoner(name)
+			request.wg.Wait() // (This thread) wait for request to be finished
 
-			err := newSummoner.Update()
-			d.Summoners[name] = newSummoner
-			// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
-
-			return newSummoner, err
+			return summoner, request.err
 		}
+		return summoner, nil
+
+	} else {
+		// Create a new summoner and get information
 
 		request := &Request{
-			action: action,
+			action: func() (actionQueue.Object, error) {
+				// If previous Request(Action) already update summoner
+				if summoner, exist := db.Summoners[name]; exist {
+					return summoner, nil
+				}
+
+				newSummoner := createSummoner(name)
+
+				err := newSummoner.Update()
+				db.Summoners[name] = newSummoner
+				// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
+
+				return newSummoner, err
+			},
 		}
 
-		request.wg.Add(1)
-		d.ActionQueue.Add(request)
-		request.wg.Wait()
+		request.wg.Add(1)           // Indicate the request is processing
+		db.ActionQueue.Add(request) // Put the request into queue
 
+		request.wg.Wait() // (This thread) wait for request to be finished
+
+		// Converting resopnd(interface) into pointer summoner
 		sum, ok := request.Respond.(*Summoner)
-		// fmt.Println(sum, ok)
+
 		if !ok {
 			return nil, errors.New("Interface conversion error")
 		}
@@ -158,9 +164,9 @@ func (d *DataBase) GetPlayer(name string) (*Summoner, error) {
 // Lock summoner list in the database
 // Return summoner if exists otherwise create an empty summoner,
 // adds to the summer list then return the new empty summoner
-func (d *DataBase) getSummonerObject(name string) *Summoner {
-	d.mutex_summoner.Lock()
-	defer d.mutex_summoner.Unlock()
+func (d *Instance) getSummonerObject(name string) *Summoner {
+	d.mutexSummoner.Lock()
+	defer d.mutexSummoner.Unlock()
 
 	if summoner, exist := d.Summoners[name]; !exist {
 		// Summoner doesn't exists, create Summoner

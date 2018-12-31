@@ -1,87 +1,183 @@
 package lol
 
 import (
+	"net/http"
+	"reflect"
 	"testing"
 )
 
 const checkMark = "\u2713"
 const ballotX = "\u2717"
 
-func TestReadKey(t *testing.T) {
-	t.Log("Given Read Riot API Key")
-	{
-		key, err := readKey()
-		if err != nil {
-			t.Fatal("\tShould be able to read API Key.", ballotX, err)
-		}
-		t.Log("\tShould be able to read API Key: ", key, checkMark)
+func Test_readKey(t *testing.T) {
+	tests := []struct {
+		name    string
+		want    string
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:    "Read API Key",
+			want:    "Test",
+			wantErr: false,
+		},
 	}
-}
-
-func TestGetSummonerStat(t *testing.T) {
-	t.Log("Given Getting Summoner Stat from Riot")
-	{
-		res, err := GetSummonerAPI("richerthanu", "na1")
-		if err != nil {
-			t.Error("\tShould received summoner response", ballotX, err)
-		}
-
-		t.Log("\tShhould received summoner responses", checkMark)
-
-		if res.StatusCode == 200 {
-			t.Log("\tShould received status code 200", checkMark)
-		} else {
-			t.Error("\tShould received status code 200", ballotX, res.StatusCode)
-		}
-	}
-
-	t.Log("Given wrong region")
-	{
-		_, err := GetSummonerAPI("richerthanu", "na")
-		if err != nil {
-			if err.Error() == "Unknown Region" {
-				t.Log("\tShould recevied UNKNOWN REGION error", checkMark)
-			} else {
-				t.Error("\tShould received UNKNOWN REGION error", ballotX, err)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := readKey()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("readKey() error = %v, wantErr %v", err, tt.wantErr)
+				return
 			}
-		} else {
-			t.Error("\tShould received UNKNOWN REGION error but nil instead", ballotX, err)
-		}
+			// if got != tt.want {
+			// 	t.Errorf("readKey() = %v, want %v", got, tt.want)
+			// }
+		})
 	}
 }
 
-func TestGetChampRotation(t *testing.T) {
-	t.Log("Given Getting Champion Rotation from Riot")
-	{
-		res, err := GetChampRot("na1")
-		if err != nil {
-			t.Error("\tShould received champion rotation response", ballotX, err)
-		}
-		t.Log("\tShould received champion rotation response", checkMark)
+func TestGetSummonerAPI(t *testing.T) {
+	type args struct {
+		summoner string
+		region   string
+	}
+	tests := []struct {
+		name    string
+		args    *args
+		want    int
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "Call Summoner api, checking status code",
+			args: &args{
+				summoner: "richerthanu",
+				region:   "na1",
+			},
+			want:    200,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetSummonerAPI(tt.args.summoner, tt.args.region)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetSummonerAPI() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			// if !reflect.DeepEqual(got, tt.want) {
+			// 	t.Errorf("GetSummonerAPI() = %v, want %v", got, tt.want)
+			// }
+			if got.StatusCode == tt.want {
+				t.Logf("GetSummonerAPI() return status code %v %v", got.StatusCode, checkMark)
+			} else {
+				t.Errorf("GetSummonerAPI() return incorrect status code %v %v", got.StatusCode, ballotX)
+				return
+			}
+		})
+	}
+}
 
-		if res.StatusCode == 200 {
-			t.Log("\tShould received status code 200", checkMark)
-		} else {
-			t.Error("\tShould received status code 200", ballotX, res.StatusCode)
-		}
+func TestGetChampRot(t *testing.T) {
+	type args struct {
+		region string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "Get Champion rotation of NA1, checking status code",
+			args: args{
+				region: "na1",
+			},
+			want:    200,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetChampRot(tt.args.region)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetChampRot() error = %v, wantErr %v %v", err, tt.wantErr, ballotX)
+				return
+			}
+			// if !reflect.DeepEqual(got, tt.want) {
+			// 	t.Errorf("GetChampRot() = %v, want %v", got, tt.want)
+			// }
+
+			if got.StatusCode != tt.want {
+				t.Errorf("GetChampRot() = %v, want %v %v", got, tt.want, ballotX)
+			}
+			t.Logf("Checking Status Code 200 %v", checkMark)
+		})
 	}
 }
 
 func TestGetMatchList(t *testing.T) {
-	t.Log("Given Getting Match List by champion account ID")
-	{
-		message := "\tShould received match list response"
-		res, err := GetMatchList("na1", "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg")
-		if err != nil {
-			t.Error(message, ballotX, err)
-		}
-		t.Log(message, checkMark)
+	type args struct {
+		region    string
+		accountID string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "Get List of Match, checking status code",
+			args: args{
+				region:    "na1",
+				accountID: "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg",
+			},
+			want:    200,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetMatchList(tt.args.region, tt.args.accountID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetMatchList() error = %v, wantErr %v %v", err, tt.wantErr, ballotX)
+				return
+			}
+			if !reflect.DeepEqual(got.StatusCode, tt.want) {
+				t.Errorf("GetMatchList() = %v, want %v %v", got.StatusCode, tt.want, ballotX)
+			}
+			t.Logf("Checking Status Code 200 %v", checkMark)
+		})
+	}
+}
 
-		message_code := "\tShould received status code 200"
-		if res.StatusCode == 200 {
-			t.Log(message_code, checkMark)
-		} else {
-			t.Error(message_code, ballotX, res.StatusCode)
-		}
+func Test_makeRequest(t *testing.T) {
+	type args struct {
+		region   string
+		endpoint string
+		fn       request
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    *http.Response
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := makeRequest(tt.args.region, tt.args.endpoint, tt.args.fn)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("makeRequest() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("makeRequest() = %v, want %v", got, tt.want)
+			}
+		})
 	}
 }

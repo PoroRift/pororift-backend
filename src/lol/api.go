@@ -43,13 +43,12 @@ func readKey() (string, error) {
 	if err != nil {
 		// log.Println("Cannot read API Key", err)
 		return fmt.Sprintf("Cannot read file: %s", API_FILE), err
-	} else {
-		str := string(b)
-
-		return str, nil
 	}
+	str := string(b)
+	return str, nil
 }
 
+// GetSummonerAPI call Riot's api to get summoner information
 // endpoint: /lol/summoner/v4/summoners/by-name/{summonerName}
 // https://developer.riotgames.com/api-methods/#summoner-v4
 func GetSummonerAPI(summoner, region string) (*http.Response, error) {
@@ -59,14 +58,15 @@ func GetSummonerAPI(summoner, region string) (*http.Response, error) {
 	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
+
 			return nil, err
 		}
-
 		return req, nil
 	})
 
 }
 
+// GetChampRot Get this week champion rotation from Riot's API
 // endpoint: /lol/platform/v3/champion-rotations
 // https://developer.riotgames.com/api-methods/#champion-v3/GET_getChampionInfo
 func GetChampRot(region string) (*http.Response, error) {
@@ -81,12 +81,15 @@ func GetChampRot(region string) (*http.Response, error) {
 	})
 }
 
+// GetMatchList call Riot's API to get match information
 // endpoint: /lol/match/v3/matchlists/by-account/{accountId}
 // https://developer.riotgames.com/api-methods/#match-v3/GET_getMatchlist
 // Options: champion, queue, season, endTime, beginTime, endIndex, beginIndex
 // Optional query is not implemented yet
-func GetMatchList(region, accountId string) (*http.Response, error) {
-	endpoint := URL_GET_MATCH_LIST + accountId
+// region: Region
+// accountID : Summoner's account's ID
+func GetMatchList(region, accountID string) (*http.Response, error) {
+	endpoint := URL_GET_MATCH_LIST + accountID
 	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {

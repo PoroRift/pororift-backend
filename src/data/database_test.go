@@ -63,6 +63,7 @@ func TestGetTwoPlayer(t *testing.T) {
 		wg.Wait()
 
 		// t.Log(*s1, *s2)
+		t.Log(s1)
 		if s1 != nil && s2 != nil {
 			t.Log("\tShould recevied 2 summoners objects", checkMark)
 		} else {
@@ -136,3 +137,88 @@ func TestGetTwoPlayer(t *testing.T) {
 
 // 	// fmt.Println(db)
 // }
+
+func TestInstance_GetPlayer(t *testing.T) {
+
+	instance := &Instance{}
+	instance.Init()
+
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name     string
+		Instance *Instance
+		args     args
+		want     string // Acount ID
+		wantErr  bool
+	}{
+		// TODO: Add test cases.
+		{
+			name:     "Case 1: Get Summoner `richerthanu`",
+			Instance: instance,
+			args: args{
+				name: "richerthanu",
+			},
+			want:    "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg",
+			wantErr: false,
+		},
+		{
+			name:     "Case 2: Get Summoner rubberice",
+			Instance: instance,
+			args: args{
+				name: "rubberice",
+			},
+			want:    "eeZuGNed2rhONqLW7wV75oqPSkCoZdnLgodHcak0fhFBgg",
+			wantErr: false,
+		},
+		{
+			name:     "Case 3: Get Summoner `richerthanu`",
+			Instance: instance,
+			args: args{
+				name: "richerthanu",
+			},
+			want:    "oHvddUUaCL8tXyySt8mJZqfpiE_SIentLjiupC__21DZwg",
+			wantErr: false,
+		},
+		{
+			name:     "Case 4: Get Summoner rubberice",
+			Instance: instance,
+			args: args{
+				name: "rubberice",
+			},
+			want:    "eeZuGNed2rhONqLW7wV75oqPSkCoZdnLgodHcak0fhFBgg",
+			wantErr: false,
+		},
+		{
+			name:     "case 5: Unknown Summoner",
+			Instance: instance,
+			args: args{
+				name: "adklfjasdkldfas",
+			},
+			want:    "",
+			wantErr: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := tt.Instance
+			got, err := db.GetPlayer(tt.args.name)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Instance.GetPlayer() error = %v, wantErr %v %v", err, tt.wantErr, ballotX)
+				return
+			}
+			// t.Log(got, err)
+			if err == nil && !reflect.DeepEqual(got.Stat.AccountID, tt.want) {
+				t.Errorf("Instance.GetPlayer() = %v, want %v", got, tt.want)
+			}
+			t.Logf("Instance.GetPlayer() %v success %v", tt.args.name, checkMark)
+		})
+	}
+
+	if len(instance.Summoners) == 3 {
+		t.Logf("Should have 3 Summoner Objects in list %v", checkMark)
+	} else {
+		t.Errorf("Should have 3 Summoner Objects in list instead has %v %v", len(instance.Summoners), ballotX)
+	}
+}

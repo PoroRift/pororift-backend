@@ -15,7 +15,8 @@ var players = map[string]string{}
 type (
 	// Instance represent an instance of DataBase that contain compiled data
 	Instance struct {
-		ActionQueue   *actionQueue.ActionQueue
+		MatchQueue    *actionQueue.ActionQueue
+		SummonerQueue *actionQueue.ActionQueue
 		Summoners     map[string]*Summoner
 		Matches       map[int]*Match
 		mutexSummoner *sync.Mutex
@@ -54,8 +55,10 @@ func (r *Request) Run() {
 // TODO: Check if the instance has been called, prevent from reset
 // TODO: Create Reset Function
 func (db *Instance) Init() {
-	db.ActionQueue = &actionQueue.ActionQueue{}
-	db.ActionQueue.Start()
+	db.SummonerQueue = &actionQueue.ActionQueue{}
+	db.SummonerQueue.Start()
+	db.MatchQueue = &actionQueue.ActionQueue{}
+	db.MatchQueue.Start()
 
 	db.Summoners = map[string]*Summoner{}
 	db.Matches = map[int]*Match{}
@@ -68,29 +71,18 @@ func (db *Instance) Init() {
 // and put the request to update/create summoner into action queue
 func (db *Instance) GetPlayer(name string) (*Summoner, error) {
 
-	// summoner := d.getSummonerObject(name)
-	// if summoner.IsOutdated() {
-	// 	// summoner information need to be updated
-	// 	err := summoner.Update()
-
-	// 	return summoner, err
-	// }
-
-	// return summoner, nil
-
 	if summoner, exist := db.Summoners[name]; exist {
 		// TODO: Check if summoner is outdated and need to be updated
 		if summoner.IsOutdated() {
 			// summoenr information need to be updated
-
 			request := &Request{
 				action: func() (actionQueue.Object, error) {
 					err := summoner.Update()
 					return nil, err
 				},
 			}
-			request.wg.Add(1)           // Indicate the request is processing
-			db.ActionQueue.Add(request) // Put the request into queue
+			request.wg.Add(1)             // Indicate the request is processing
+			db.SummonerQueue.Add(request) // Put the request into queue
 
 			request.wg.Wait() // (This thread) wait for request to be finished
 
@@ -98,85 +90,76 @@ func (db *Instance) GetPlayer(name string) (*Summoner, error) {
 		}
 		return summoner, nil
 
-	} else {
-		// Create a new summoner and get information
-
-		request := &Request{
-			action: func() (actionQueue.Object, error) {
-				// If previous Request(Action) already update summoner
-				if summoner, exist := db.Summoners[name]; exist {
-					return summoner, nil
-				}
-
-				newSummoner := createSummoner(name)
-
-				err := newSummoner.Update()
-				db.Summoners[name] = newSummoner
-				// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
-
-				return newSummoner, err
-			},
-		}
-
-		request.wg.Add(1)           // Indicate the request is processing
-		db.ActionQueue.Add(request) // Put the request into queue
-
-		request.wg.Wait() // (This thread) wait for request to be finished
-
-		// Converting resopnd(interface) into pointer summoner
-		sum, ok := request.Respond.(*Summoner)
-
-		if !ok {
-			return nil, errors.New("Interface conversion error")
-		}
-		return sum, nil
-
-		// fmt.Println(sum, ok)
-		// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(*Summoner)
-		// s := reflect.ValueOf(request.Respond).Interface().(*Summoner)
-
-		// s.Name = "Not Rich"
-		// return s, request.err
 	}
+
+	// Create a new summoner and get information
+	request := &Request{
+		action: func() (actionQueue.Object, error) {
+			// If previous Request(Action) already update summoner
+			if summoner, exist := db.Summoners[name]; exist {
+				return summoner, nil
+			}
+
+			newSummoner := createSummoner(name)
+
+			err := newSummoner.Update()
+			db.Summoners[name] = newSummoner
+			// fmt.Println("newSummoner: " + reflect.TypeOf(newSummoner).String())
+
+			return newSummoner, err
+		},
+	}
+
+	request.wg.Add(1)             // Indicate the request is processing
+	db.SummonerQueue.Add(request) // Put the request into queue
+
+	request.wg.Wait() // (This thread) wait for request to be finished
+
+	// Converting resopnd(interface) into pointer summoner
+	sum, ok := request.Respond.(*Summoner)
+
+	if !ok {
+		return nil, errors.New("Interface conversion error")
+	}
+	// fmt.Println(sum, request.err)
+	return sum, request.err
+
+	// fmt.Println(sum, ok)
+	// var s *Summoner = reflect.ValueOf(request.Respond).Interface().(*Summoner)
+	// s := reflect.ValueOf(request.Respond).Interface().(*Summoner)
+
+	// s.Name = "Not Rich"
+	// return s, request.err
 
 }
 
-// func (d *DataBase) getMatchObject(id int) *Match {
-// 	d.mutex_matches.Lock()
-// 	defer d.mutex_matches.Unlock()
-
-// 	if match, exist := d.Matches[id]; !exist {
-// 		// If Match does not exists, create them
-// 		newMatch = &Match{
-// 			mutex:  &sync.Mutex{},
-// 			GameId: id,
-// 		}
-
-// 		d.Matches[id] = newMatch
-
-// 		return newMatch
-// 	} else {
-// 		return match
-// 	}
-// }
-
-// TODO: No longer needed
-// Lock summoner list in the database
-// Return summoner if exists otherwise create an empty summoner,
-// adds to the summer list then return the new empty summoner
-func (d *Instance) getSummonerObject(name string) *Summoner {
-	d.mutexSummoner.Lock()
-	defer d.mutexSummoner.Unlock()
-
-	if summoner, exist := d.Summoners[name]; !exist {
-		// Summoner doesn't exists, create Summoner
-		newSummoner := &Summoner{
-			mutex: &sync.Mutex{},
-			Name:  name,
-		}
-		d.Summoners[name] = newSummoner
-		return newSummoner
-	} else {
-		return summoner
+// GetMatch return match information of the provided match ID
+func (db *Instance) GetMatch(matchID int) (*Match, error) {
+	if match, exist := db.Matches[matchID]; exist {
+		// If match exist, return match information
+		return match, nil
 	}
+
+	/** Match doesn't exists **/
+	request := &Request{
+		action: func() (actionQueue.Object, error) {
+			if match, exist := db.Matches[matchID]; exist {
+				// If previous request already compiled match information
+				return match, nil
+			}
+
+			newMatch := createMatch(matchID)
+			db.Matches[matchID] = newMatch
+			return newMatch, nil
+		},
+	}
+	request.wg.Add(1)
+	db.MatchQueue.Add(request)
+	request.wg.Wait()
+
+	m, ok := request.Respond.(*Match)
+	if !ok {
+		return nil, errors.New("Interface convertion error")
+	}
+	return m, request.err
 }

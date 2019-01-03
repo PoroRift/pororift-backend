@@ -181,3 +181,39 @@ func Test_makeRequest(t *testing.T) {
 		})
 	}
 }
+
+func TestGetMatchAPI(t *testing.T) {
+	type args struct {
+		matchID int
+		region  string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    int
+		wantErr bool
+	}{
+		{
+			name: "Get Match information",
+			args: args{
+				matchID: 2856049818,
+				region:  "na1",
+			},
+			want:    200,
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := GetMatchAPI(tt.args.matchID, tt.args.region)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("GetMatchAPI() error = %v, wantErr %v %v", err, tt.wantErr, ballotX)
+				return
+			}
+			if !reflect.DeepEqual(got.StatusCode, tt.want) {
+				t.Errorf("GetMatchList() = %v, want %v %v", got.StatusCode, tt.want, ballotX)
+			}
+			t.Logf("Checking Status Code 200 %v", checkMark)
+		})
+	}
+}

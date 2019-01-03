@@ -16,6 +16,7 @@ const URL_NA1 = "https://na1.api.riotgames.com"
 const URL_GET_SUMMONER = "/lol/summoner/v4/summoners/by-name/"
 const URL_GET_CHAMP_ROT = "/lol/platform/v3/champion-rotations"
 const URL_GET_MATCH_LIST = "/lol/match/v4/matchlists/by-account/"
+const urlGetMatch = "/lol/match/v4/matches/"
 const API_FILE = "../api_key"
 
 var ERROR_UKNOWN_REGION = errors.New("Unknown Region")
@@ -65,6 +66,20 @@ func GetSummonerAPI(summoner, region string) (*http.Response, error) {
 	})
 
 }
+
+// GetMatchAPI call Riot's API to get Match information
+// endpoint: lol/match/v4/matches/{matchID}
+// https://developer.riotgames.com/api-methods/#match-v4/GET_getMatch
+func GetMatchAPI(matchID int, region string) (*http.Response, error) {
+	endpoint := fmt.Sprintf("%s%v", urlGetMatch, matchID)
+
+	return makeRequest(region, endpoint, func(url string) (*http.Request, error) {
+		// req, err := http.NewRequest("GET", url, nil)
+		return http.NewRequest("GET", url, nil)
+	})
+}
+
+// TODO: MatchTimeline
 
 // GetChampRot Get this week champion rotation from Riot's API
 // endpoint: /lol/platform/v3/champion-rotations

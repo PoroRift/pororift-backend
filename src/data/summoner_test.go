@@ -69,9 +69,10 @@ func TestSummonerUpdate(t *testing.T) {
 
 		if err == nil {
 			t.Error("\tShould return error", ballotX)
+		} else {
+			t.Log("\tShould return error", checkMark, err)
 		}
 		// fmt.Println(err)
-		t.Error("\tShould return error", checkMark, err)
 
 		// if err := summoner.Update(); err != nil {
 		// 	fmt.Println(err)

@@ -9,20 +9,25 @@ import (
 	"github.com/PoroRift/pororift-backend/lol"
 )
 
-const OUTDATED_TIME = 5 * 60 * 1000 // 5 minutes
+const outDatedTime = 5 * 60 * 1000 // 5 minutes
 
 type (
+
+	// Summoner contains player's stat and information
 	Summoner struct {
-		Name       string
-		mutex      *sync.Mutex // Lock this Player while updating
-		Stat       *Stat
-		Matches    *PlayerMatches
-		LastUpdate int64 // unix timestamp of the last update
+		Name string
+		// Lock this Player while updating
+		mutex   *sync.Mutex
+		Stat    *Stat
+		Matches *PlayerMatches
+		// unix timestamp of the last update
+		LastUpdate int64
 	}
 
+	// Stat is what Riot's API return regarding player information
 	Stat struct {
-		Id           string `json:"id"`
-		AccountId    string `json:"accountId"`
+		ID           string `json:"id"`
+		AccountID    string `json:"accountId"`
 		Puuid        string `json:"puuid"`
 		Name         string `json:"name"`
 		ProfileIcon  int    `json:"profileIconId"`
@@ -30,31 +35,36 @@ type (
 		Lvl          int    `json:"summonerLevel"`
 	}
 
+	// PlayerMatches List of the summoner's recent matches
 	PlayerMatches struct {
-		Matches    []*PlayerMatch `json: matches`
-		StartIndex int            `json: startindex`
-		EndIndex   int            `json: endIndex`
-		TotalGames int            `json: totalGames`
+		Matches    []*PlayerMatch `json:"matches"`
+		StartIndex int            `json:"startindex"`
+		EndIndex   int            `json:"endIndex"`
+		TotalGames int            `json:"totalGames"`
 	}
 
+	// PlayerMatch Information of the match belong this that summoner
 	PlayerMatch struct {
-		PlatformId string `json: platformId`
-		GameId     int    `json: gameId`
-		Champion   int    `json: champion`
-		Queue      int    `json: queue`
-		Season     int    `json: season`
-		Timestamp  int    `json: timestamp`
-		Role       string `json: role`
-		Lane       string `json: lane`
+		PlatformID string `json:"platformId"`
+		GameID     int    `json:"gameId"`
+		Champion   int    `json:"champion"`
+		Queue      int    `json:"queue"`
+		Season     int    `json:"season"`
+		Timestamp  int    `json:"timestamp"`
+		Role       string `json:"role"`
+		Lane       string `json:"lane"`
 	}
 )
 
+// IsOutdated check the last timestamp.
+// Return true if timestamp exceeded the set amount by
+// summoner's LastUpdate.
 func (s *Summoner) IsOutdated() bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	currentTime := time.Now().Unix()
 
-	if currentTime-s.LastUpdate > OUTDATED_TIME {
+	if currentTime-s.LastUpdate > outDatedTime {
 		return true
 	}
 
@@ -67,7 +77,7 @@ func (s *Summoner) IsOutdated() bool {
 // return error if there is one
 func (s *Summoner) Update() error {
 
-	s.mutex.Lock() // Preven anyone from editing
+	s.mutex.Lock() // Prevent anyone from editing
 	defer s.mutex.Unlock()
 
 	// Get summoner Stat
@@ -81,7 +91,7 @@ func (s *Summoner) Update() error {
 	s.Stat = stat
 
 	// Get Match List
-	res, err = lol.GetMatchList("na1", s.Stat.AccountId)
+	res, err = lol.GetMatchList("na1", s.Stat.AccountID)
 
 	var matches = &PlayerMatches{}
 	json.NewDecoder(res.Body).Decode(&matches)

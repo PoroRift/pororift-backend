@@ -14,7 +14,7 @@ func TestDBGetPlayer(t *testing.T) {
 	db.Init()
 	t.Log("Given searching for summoner that's not in the database")
 	{
-		summoner, err := db.GetPlayer("richerthanu")
+		summoner, err := db.getPlayer("richerthanu")
 		// t.Log(*summoner)
 		if err != nil {
 			t.Error("\tShoud search for summoner ", "richerthanu", ballotX, err)
@@ -24,7 +24,7 @@ func TestDBGetPlayer(t *testing.T) {
 		// fmt.Println(summoner)
 		t.Log("\tWhen Searching for summoner that exist in the database")
 		{
-			anotherSummoner, _ := db.GetPlayer("richerthanu")
+			anotherSummoner, _ := db.getPlayer("richerthanu")
 			// var s Summoner = *anotherSummoner
 			// t.Log(&s)
 			// t.Log(*anotherSummoner)
@@ -47,15 +47,15 @@ func TestGetTwoPlayer(t *testing.T) {
 	{
 		var wg sync.WaitGroup
 		wg.Add(2)
-		var s1, s2 *Summoner
+		var s1, s2 *summoner
 		go func() {
-			sum, _ := db.GetPlayer("richerthanu")
+			sum, _ := db.getPlayer("richerthanu")
 			s1 = sum
 			wg.Done()
 		}()
 
 		go func() {
-			sum, _ := db.GetPlayer("rubberice")
+			sum, _ := db.getPlayer("rubberice")
 			s2 = sum
 			wg.Done()
 		}()
@@ -203,7 +203,7 @@ func TestInstance_GetPlayer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			db := tt.Instance
-			got, err := db.GetPlayer(tt.args.name)
+			got, err := db.getPlayer(tt.args.name)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("Instance.GetPlayer() error = %v, wantErr %v %v", err, tt.wantErr, ballotX)
 				return

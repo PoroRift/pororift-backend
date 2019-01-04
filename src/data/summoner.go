@@ -2,7 +2,6 @@ package data
 
 import (
 	"encoding/json"
-	"fmt"
 	"sync"
 	"time"
 
@@ -14,16 +13,32 @@ const outDatedTime = 5 * 60 * 1000 // 5 minutes
 type (
 
 	// Summoner contains player's stat and information
-	Summoner struct {
+	summoner struct {
 		Name string
 		// Lock this Player while updating
 		mutex   *sync.Mutex
 		Stat    *Stat
-		Matches *PlayerMatches
+		Matches *summonerMatch
 		// unix timestamp of the last update
 		LastUpdate int64
 	}
 
+	summonerMatch struct {
+		Matches    []*matchInfo `json:"matches"`
+		StartIndex int          `json:"startindex"`
+		EndIndex   int          `json:"endIndex"`
+		TotalGames int          `json:"totalGames"`
+	}
+	matchInfo []struct {
+		PlatformID string `json:"platformId"`
+		GameID     int    `json:"gameId"`
+		Champion   int    `json:"champion"`
+		Queue      int    `json:"queue"`
+		Season     int    `json:"season"`
+		Timestamp  int    `json:"timestamp"`
+		Role       string `json:"role"`
+		Lane       string `json:"lane"`
+	}
 	// Stat is what Riot's API return regarding player information
 	Stat struct {
 		ID           string `json:"id"`
@@ -34,32 +49,13 @@ type (
 		RevisionDate int    `json:"revisionDate"`
 		Lvl          int    `json:"summonerLevel"`
 	}
-
 	// PlayerMatches List of the summoner's recent matches
-	PlayerMatches struct {
-		Matches    []*PlayerMatch `json:"matches"`
-		StartIndex int            `json:"startindex"`
-		EndIndex   int            `json:"endIndex"`
-		TotalGames int            `json:"totalGames"`
-	}
-
-	// PlayerMatch Information of the match belong this that summoner
-	PlayerMatch struct {
-		PlatformID string `json:"platformId"`
-		GameID     int    `json:"gameId"`
-		Champion   int    `json:"champion"`
-		Queue      int    `json:"queue"`
-		Season     int    `json:"season"`
-		Timestamp  int    `json:"timestamp"`
-		Role       string `json:"role"`
-		Lane       string `json:"lane"`
-	}
 )
 
 // IsOutdated check the last timestamp.
 // Return true if timestamp exceeded the set amount by
 // summoner's LastUpdate.
-func (s *Summoner) IsOutdated() bool {
+func (s *summoner) IsOutdated() bool {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 	currentTime := time.Now().Unix()
@@ -75,7 +71,7 @@ func (s *Summoner) IsOutdated() bool {
 // Update summoner information
 // Call lol package API
 // return error if there is one
-func (s *Summoner) Update() error {
+func (s *summoner) Update() error {
 
 	s.mutex.Lock() // Prevent anyone from editing
 	defer s.mutex.Unlock()
@@ -86,40 +82,35 @@ func (s *Summoner) Update() error {
 		return err
 	}
 
-	var stat = &Stat{}
-	json.NewDecoder(res.Body).Decode(&stat)
-	s.Stat = stat
+	json.NewDecoder(res.Body).Decode(&s.Stat)
 
 	// Get Match List
 	res, err = lol.GetMatchList("na1", s.Stat.AccountID)
 
-	var matches = &PlayerMatches{}
-	json.NewDecoder(res.Body).Decode(&matches)
-
-	s.Matches = matches
+	json.NewDecoder(res.Body).Decode(&s.Matches)
 
 	// set updated time
 	s.LastUpdate = time.Now().Unix()
 	return nil
 }
 
-func (pm *PlayerMatches) String() string {
-	return fmt.Sprintf("%+v\n", *pm)
-}
+// func (pm *PlayerMatches) String() string {
+// 	return fmt.Sprintf("%+v\n", *pm)
+// }
 
-func (m *PlayerMatch) String() string {
-	return fmt.Sprintf("%+v\n", *m)
-}
+// func (m *PlayerMatch) String() string {
+// 	return fmt.Sprintf("%+v\n", *m)
+// }
 
-// var requestChan = make(chan )
-// "ToString" for type Stat
-func (s *Stat) String() string {
-	// Print the name of the field along with value
-	return fmt.Sprintf("%+v\n", *s)
-}
+// // var requestChan = make(chan )
+// // "ToString" for type Stat
+// func (s *Stat) String() string {
+// 	// Print the name of the field along with value
+// 	return fmt.Sprintf("%+v\n", *s)
+// }
 
-func createSummoner(name string) *Summoner {
-	return &Summoner{
+func createSummoner(name string) *summoner {
+	return &summoner{
 		Name:  name,
 		mutex: &sync.Mutex{},
 	}

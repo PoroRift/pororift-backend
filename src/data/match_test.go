@@ -27,7 +27,7 @@ func TestMatchInit(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m := &Match{
+			m := &match{
 				GameID: tt.fields.GameID,
 				mutex:  tt.fields.mutex,
 			}

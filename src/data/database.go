@@ -17,8 +17,8 @@ type (
 	Instance struct {
 		MatchQueue    *actionQueue.ActionQueue
 		SummonerQueue *actionQueue.ActionQueue
-		Summoners     map[string]*Summoner
-		Matches       map[int]*Match
+		Summoners     map[string]*summoner
+		Matches       map[int]*match
 		mutexSummoner *sync.Mutex
 		mutexMatches  *sync.Mutex
 	}
@@ -60,8 +60,8 @@ func (db *Instance) Init() {
 	db.MatchQueue = &actionQueue.ActionQueue{}
 	db.MatchQueue.Start()
 
-	db.Summoners = map[string]*Summoner{}
-	db.Matches = map[int]*Match{}
+	db.Summoners = map[string]*summoner{}
+	db.Matches = map[int]*match{}
 }
 
 // GetPlayer search the information of that player.
@@ -69,7 +69,7 @@ func (db *Instance) Init() {
 // to prevent spam.
 // If the player doesn't exist or need to be update, create a request struct
 // and put the request to update/create summoner into action queue
-func (db *Instance) GetPlayer(name string) (*Summoner, error) {
+func (db *Instance) getPlayer(name string) (*summoner, error) {
 
 	if summoner, exist := db.Summoners[name]; exist {
 		// TODO: Check if summoner is outdated and need to be updated
@@ -116,7 +116,7 @@ func (db *Instance) GetPlayer(name string) (*Summoner, error) {
 	request.wg.Wait() // (This thread) wait for request to be finished
 
 	// Converting resopnd(interface) into pointer summoner
-	sum, ok := request.Respond.(*Summoner)
+	sum, ok := request.Respond.(*summoner)
 
 	if !ok {
 		return nil, errors.New("Interface conversion error")
@@ -134,7 +134,7 @@ func (db *Instance) GetPlayer(name string) (*Summoner, error) {
 }
 
 // GetMatch return match information of the provided match ID
-func (db *Instance) GetMatch(matchID int) (*Match, error) {
+func (db *Instance) GetMatch(matchID int) (*match, error) {
 	if match, exist := db.Matches[matchID]; exist {
 		// If match exist, return match information
 		return match, nil
@@ -157,7 +157,7 @@ func (db *Instance) GetMatch(matchID int) (*Match, error) {
 	db.MatchQueue.Add(request)
 	request.wg.Wait()
 
-	m, ok := request.Respond.(*Match)
+	m, ok := request.Respond.(*match)
 	if !ok {
 		return nil, errors.New("Interface convertion error")
 	}

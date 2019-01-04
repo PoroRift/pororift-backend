@@ -12,7 +12,7 @@ import (
 
 type (
 	// Match contain match information, and internal components
-	Match struct {
+	match struct {
 		GameID int
 		mutex  *sync.Mutex
 		Data   MatchInfo
@@ -200,7 +200,7 @@ type (
 // Init initilize Match Object and Call Riot's API for that match information
 // While Match Object is updating, the "mutex" component is locked
 // Will unlock the mutex component once completed
-func (m *Match) Init() error {
+func (m *match) Init() error {
 
 	m.mutex.Lock() // Prevent anyone from editing
 	defer m.mutex.Unlock()
@@ -219,8 +219,8 @@ func (m *Match) Init() error {
 	return nil
 }
 
-func createMatch(matchID int) *Match {
-	return &Match{
+func createMatch(matchID int) *match {
+	return &match{
 		GameID: matchID,
 		mutex:  &sync.Mutex{},
 	}

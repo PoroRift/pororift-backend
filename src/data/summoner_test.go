@@ -10,7 +10,7 @@ import (
 func TestOutDated(t *testing.T) {
 	t.Log("Given that a summoner just created")
 	{
-		summoner := &Summoner{
+		summoner := &summoner{
 			mutex: &sync.Mutex{},
 			Name:  "Test",
 		}
@@ -26,7 +26,7 @@ func TestOutDated(t *testing.T) {
 func TestSummonerUpdate(t *testing.T) {
 	t.Log("Given that updating summoner")
 	{
-		summoner := &Summoner{
+		summoner := &summoner{
 			mutex: &sync.Mutex{},
 			Name:  "richerthanu",
 		}
@@ -60,7 +60,7 @@ func TestSummonerUpdate(t *testing.T) {
 
 	t.Log("Given Summoner name not found") // Given Summoner doesn't exists/not found
 	{
-		summoner := &Summoner{
+		summoner := &summoner{
 			mutex: &sync.Mutex{},
 			Name:  "jfasdklfjasdkfkjdsalfkjadf",
 		}

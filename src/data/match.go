@@ -206,16 +206,18 @@ func (m *match) Init() error {
 	defer m.mutex.Unlock()
 
 	res, err := lol.GetMatchAPI(m.GameID, "na1")
+
 	if err != nil {
 		return err
 	}
 
+	// print(res)
 	// var matchInfo MatchInfo
 	json.NewDecoder(res.Body).Decode(&m.Data)
-	fmt.Println(m.Data)
+	// fmt.Println(m.Data)
 
 	// fmt.Println(res.Body)
-	// print(res)
+
 	return nil
 }
 

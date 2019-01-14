@@ -34,6 +34,7 @@ func TestMatchInit(t *testing.T) {
 			if err := m.Init(); (err != nil) != tt.wantErr {
 				t.Errorf("Match.Init() error = %v, wantErr %v", err, tt.wantErr)
 			}
+			// t.Log(m.Data)
 		})
 	}
 }

@@ -134,7 +134,7 @@ func (db *Instance) getPlayer(name string) (*summoner, error) {
 }
 
 // GetMatch return match information of the provided match ID
-func (db *Instance) GetMatch(matchID int) (*match, error) {
+func (db *Instance) getMatch(matchID int) (*match, error) {
 	if match, exist := db.Matches[matchID]; exist {
 		// If match exist, return match information
 		return match, nil
@@ -150,7 +150,8 @@ func (db *Instance) GetMatch(matchID int) (*match, error) {
 
 			newMatch := createMatch(matchID)
 			db.Matches[matchID] = newMatch
-			return newMatch, nil
+			err := newMatch.Init()
+			return newMatch, err
 		},
 	}
 	request.wg.Add(1)
@@ -158,8 +159,10 @@ func (db *Instance) GetMatch(matchID int) (*match, error) {
 	request.wg.Wait()
 
 	m, ok := request.Respond.(*match)
+
 	if !ok {
 		return nil, errors.New("Interface convertion error")
 	}
+	// fmt.Println(m.Data)
 	return m, request.err
 }

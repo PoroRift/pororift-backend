@@ -222,3 +222,50 @@ func TestInstance_GetPlayer(t *testing.T) {
 		t.Errorf("Should have 3 Summoner Objects in list instead has %v %v", len(instance.Summoners), ballotX)
 	}
 }
+
+func TestInstance_getMatch(t *testing.T) {
+	// type fields struct {
+	// 	MatchQueue    *actionQueue.ActionQueue
+	// 	SummonerQueue *actionQueue.ActionQueue
+	// 	Summoners     map[string]*summoner
+	// 	Matches       map[int]*match
+	// 	mutexSummoner *sync.Mutex
+	// 	mutexMatches  *sync.Mutex
+	// }
+	instance := &Instance{}
+	instance.Init()
+
+	type args struct {
+		matchID int
+	}
+	tests := []struct {
+		name string
+		// fields  fields
+		args args
+		// want    *match
+		wantErr bool
+	}{
+		// TODO: Add test cases.
+		{
+			name: "Get Match Information",
+			args: args{
+				matchID: 2856049818,
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := instance
+			got, err := db.getMatch(tt.args.matchID)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("Instance.getMatch() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			// if !reflect.DeepEqual(got, tt.want) {
+			// 	t.Errorf("Instance.getMatch() = %v, want %v", got, tt.want)
+			// }
+			t.Log(got)
+		})
+	}
+}

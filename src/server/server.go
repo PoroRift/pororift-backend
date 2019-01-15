@@ -1,12 +1,14 @@
 package main
 
 import (
+	"github.com/PoroRift/pororift-backend/data"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 )
 
 func init() {
 	// fmt.Println(lol.Test())
+	data.Init()
 }
 
 func main() {
@@ -30,6 +32,8 @@ func main() {
 	e.GET("/champ_rotation", getChampRot)
 
 	e.GET("/champ", getChampList)
+
+	e.GET("/matchView/:id", getMatch)
 
 	// TODO: Need to make list of all avai champions art
 	// TODO: remove relative path

@@ -89,14 +89,12 @@ func GetMatch(matchID int) (*Match, error) {
 		match.Summoners[i] = *s
 	}
 
-	fmt.Println(match)
-
-	return nil, nil
+	return &match, nil
 }
 
 type (
 	Match struct {
-		Summoners []Summoner `json:"summonerDetail"`
+		Summoners []Summoner `json:"summonerDetails"`
 	}
 
 	Summoner struct {

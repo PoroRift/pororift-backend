@@ -1,6 +1,16 @@
 # pororift-backend
 What the frontend/client calls for LoL data.
 
+
+
+```
+1. cd src; mkdir bin; export GOBIN=`pwd`/bin
+2. go install ./...
+3. touch api_key (Update)
+4. ./bin/server
+```
+
+
 ## API KEY
 - Generate and save riot api key into `api_key` file in root project directory
 

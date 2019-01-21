@@ -1,13 +1,11 @@
 package services
 
-import {
-	"fmt"
-	"net/http"
-	"os"
+import (
+	"github.com/Pororift/backend/models/dto"
+	"github.com/Pororift/backend/repository"
+)
 
-	"github.com/labstack/echo"
-}
-
-type Match struct {
-	
+func GetMatch(matchId int64) (dto.MatchDTO, error) {
+	match, err := repository.GetMatch(matchId)
+	return match, err
 }

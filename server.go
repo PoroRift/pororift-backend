@@ -7,15 +7,17 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/Pororift/backend/controller"
 )
 
 func main() {
 	isDev := false
-	if len(os.Args) == 3 {
+	if len(os.Args) == 4 {
 		isDev = os.Args[1] == "dev"
-		os.Setenv("RIOT_KEY", os.Args[2])
+		os.Setenv("RIOT_API", os.Args[2])
+		os.Setenv("RIOT_URL", os.Args[3])
 	} else {
-		fmt.Println("no argument set .... defaulting to prod env")
+		fmt.Println("\nno argument set .... defaulting to prod env")
 	}
 
 	e := echo.New()
@@ -32,8 +34,12 @@ func main() {
 	}))
 
 	if isDev {
-		e.GET("api/test", test)
+		e.GET("/api/test", test)
 	}
+
+	e.GET("/api/matches/:id", controller.GetMatchById)
+
+	e.Logger.Fatal(e.Start(":3000"))
 
 }
 

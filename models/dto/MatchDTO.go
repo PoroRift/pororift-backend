@@ -9,4 +9,9 @@ type MatchDTO struct {
 	PlatformID            string                   `json:"platformId"`
 	GameMode              string                   `json:"gameMode"`
 	MapID                 int                      `json:"mapId"`
+	GameType              string                   `json:"gameType"`
+	Teams                 []TeamStatsDTO           `json:"teams"`
+	Participants          []ParticipantDTO         `json:"participants"`
+	GameDuration          int64                    `json:"gameDuration"`
+	GameCreation          int64                    `json:"gameCreation"`
 }

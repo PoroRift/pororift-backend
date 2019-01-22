@@ -23,3 +23,7 @@ func GetMatchById(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, match)
 }
+
+func GetMatchLists(c echo.Context) error {
+	return c.String(http.StatusOK, "history list")
+}

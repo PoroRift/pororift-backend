@@ -5,20 +5,21 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/Pororift/backend/controller"
+	"github.com/Pororift/backend/repository"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/Pororift/backend/controller"
 )
 
 func main() {
 	isDev := false
-	if len(os.Args) == 4 {
+	if len(os.Args) == 3 {
 		isDev = os.Args[1] == "dev"
 		os.Setenv("RIOT_API", os.Args[2])
-		os.Setenv("RIOT_URL", os.Args[3])
 	} else {
-		fmt.Println("\nno argument set .... defaulting to prod env")
+		fmt.Println("\n no argument set .... defaulting to prod env")
 	}
+	repository.Initialize()
 
 	e := echo.New()
 

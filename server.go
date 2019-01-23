@@ -38,7 +38,8 @@ func main() {
 		e.GET("/api/test", test)
 	}
 
-	e.GET("/api/matches/:id", controller.GetMatchById)
+	e.GET("/api/matches/:id", controller.GetMatchByID)
+	e.GET("/api/matchlist/by-account/:id", controller.GetMatchLists)
 
 	e.Logger.Fatal(e.Start(":3000"))
 
